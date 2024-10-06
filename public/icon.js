@@ -1,0 +1,12 @@
+export { default as Logo } from "./logo.svg";
+export { default as LogoIcon } from "./logoIcon.svg";
+export { default as Dashboard } from "./dashboard.svg";
+export { default as Cashier } from "./cashier.svg";
+export { default as Sales } from "./sales.svg";
+export { default as Notifications } from "./notifications.svg";
+export { default as Setting } from "./settings.svg";
+export { default as Delete } from "./delete.svg";
+export { default as Filter } from "./filter.svg";
+export { default as Add } from "./add.svg";
+export { default as Search } from "./search.svg";
+export { default as Cancel } from "./cancel.svg";
