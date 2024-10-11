@@ -16,23 +16,22 @@ export const CashierProvider = ({ children }) => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const sessData = localStorage.getItem("currSession");
+  // useEffect(() => {
+  //   const sessData = localStorage.getItem("currSession");
 
-    // Ensure sessData is valid before setting it
-    try {
-      const parsedData = sessData ? JSON.parse(sessData) : null;
-      if (!parsedData) {
-        router.push("/cashier");
-      } else {
-        setCart(parsedData);
-      }
-    } catch (error) {
-      console.error("Invalid session data:", error);
-      localStorage.removeItem("currSession"); // Remove invalid session data
-      router.push("/cashier"); // Redirect to cashier
-    }
-  }, []);
+  //   try {
+  //     const parsedData = sessData ? JSON.parse(sessData) : null;
+  //     if (!parsedData) {
+  //       router.push("/cashier");
+  //     } else {
+  //       setCart(parsedData);
+  //     }
+  //   } catch (error) {
+  //     console.error("Invalid session data:", error);
+  //     localStorage.removeItem("currSession");
+  //     router.push("/cashier");
+  //   }
+  // }, []);
 
   const cartItems = async () => {
     const code = values.join("");
