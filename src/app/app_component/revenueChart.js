@@ -1,91 +1,98 @@
-// components/BarChart.js
 "use client";
 
-import React from "react";
-import { Bar } from "react-chartjs-2";
+import { TrendingUp } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useContext } from "react";
+import AdminContext from "../context/adminContext";
+
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-const BarChart = () => {
-  const data = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "June", "July"],
-    datasets: [
-      {
-        label: "My Dataset",
-        backgroundColor: "#61088E",
-        barThickness: "flex",
-        categoryPercentage: 0.9,
-        barPercentage: 0.5,
-        borderRadius: 10,
-        data: [2, 20, 45, 15, 42, 33, 12, 22],
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            let label = context.dataset.label || "";
-            if (label) {
-              label += ": ";
-            }
-            label += context.parsed.y + "M";
-            return label;
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        grid: {
-          display: true,
-        },
-        beginAtZero: true,
-        ticks: {
-          stepSize: 10,
-          callback: function (value) {
-            return value + " " + "M"; // Add 'M' suffix to each tick value
-          },
-        },
-      },
-    },
-  };
-
-  return (
-    <div className="w-[100%]">
-      <Bar data={data} options={options} />
-    </div>
-  );
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
 };
 
-export default BarChart;
+export function RevenueChart() {
+  const frames = ["1D", "5D", "1M", "1Y"];
+  const { chartData, setChartData, setChartFrame } = useContext(AdminContext);
+
+  const handleFrame = (frame) => {
+    setChartFrame(frame);
+  };
+  return (
+    <Card className=" relative mb-10 w-[29rem] bg-[#fdfdfd] p-3 rounded-3xl mr-5">
+      <CardHeader>
+        <div>
+          <div className="flex">
+            <div className="h-8 w-8 rounded-full bg-[#61088E] mr-2"></div>
+            <CardTitle>Monthly Recurring Revenue</CardTitle>
+          </div>
+          <p className="text-sm">Income</p>
+          <div className="flex">
+            <p>N</p>
+            <p className="text-3xl">32,500</p>
+          </div>
+        </div>
+      </CardHeader>
+
+      <div className="flex w-[55%] justify-between h-8 ml-6 px-2">
+        {frames.map((child, index) => {
+          return (
+            <div
+              className="flex items-center justify-center h-full cursor-pointer hover:bg-[#e1e1e1] w-full"
+              onClick={() => handleFrame(child)}
+              key={index}
+            >
+              <p>{child}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      <CardContent>
+        <ChartContainer className="h-[100%] mt-10" config={chartConfig}>
+          <BarChart accessibilityLayer barCategoryGap={"40%"} data={chartData}>
+            <CartesianGrid
+              vertical={false}
+              stroke="#000000"
+              strokeWidth={0.1}
+            />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
+            />
+            <YAxis
+              dataKey="sales"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Bar dataKey="sales" fill="#61088E" barSize={20} radius={10} />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
