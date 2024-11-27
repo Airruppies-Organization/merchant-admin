@@ -1,12 +1,15 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useAuthContext } from "../hooks/useAuthContext";
 import axios from "axios";
 
 export const AdminContext = createContext();
 
 export const AdminProvider = ({ children }) => {
   const pathname = usePathname();
+  const { admin } = useAuthContext();
+
   // state
 
   const [modal, setModal] = useState(false); // modal form to add cashier
@@ -16,6 +19,25 @@ export const AdminProvider = ({ children }) => {
   const [sales, setSales] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [chartFrame, setChartFrame] = useState("1Y");
+  const [adminField, setAdminField] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    merchant_id: "",
+  });
+
+  const [onboardField, setOnboardField] = useState({
+    name: "",
+    address: "",
+    state: "",
+    logo: "https://banner2.cleanpng.com/20180712/tl/aawy1ozzf.webp",
+  });
+
+  const [loginField, setLoginField] = useState({
+    email: "",
+    password: "",
+  });
 
   // pathname.endsWith("/cashiers") &&
   // useEffect(() => {
@@ -31,19 +53,31 @@ export const AdminProvider = ({ children }) => {
   useEffect(() => {
     const saleFetcher = async () => {
       const req = await axios.get(
-        "http://localhost:7000/merchant/api/salesData"
+        "http://localhost:7000/merchant/api/salesData",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${admin.token}`,
+          },
+        }
       );
       setSales([...req.data]);
     };
 
     saleFetcher();
-  }, []);
+  }, [admin]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:7000/merchant/api/allTimeSales?range=${chartFrame}`
+          `http://localhost:7000/merchant/api/allTimeSales?range=${chartFrame}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${admin.token}`,
+            },
+          }
         );
         const result = await response.json();
 
@@ -93,7 +127,7 @@ export const AdminProvider = ({ children }) => {
     };
 
     fetchData();
-  }, [setChartData, chartFrame]);
+  }, [setChartData, chartFrame, admin]);
 
   const deleteCashier = async (id) => {
     // await fetch(`http://localhost:5000/cashiers/${id}`, {
@@ -122,6 +156,33 @@ export const AdminProvider = ({ children }) => {
     setModal(false);
   };
 
+  const onboardHandler = async () => {
+    try {
+      const res = await fetch("http://localhost:7000/merchant/api/onboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${admin.token}`,
+        },
+        body: JSON.stringify({
+          name: onboardField.name,
+          address: onboardField.address,
+          state: onboardField.state,
+          logo: "https://banner2.cleanpng.com/20180712/tl/aawy1ozzf.webp",
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to onboard: ${res.status} ${res.statusText}`);
+      }
+
+      const result = await res.json();
+      console.log("Onboarding successful:", result);
+    } catch (error) {
+      console.error("Error onboarding merchant:", error);
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -144,6 +205,14 @@ export const AdminProvider = ({ children }) => {
         setChartData,
         chartFrame,
         setChartFrame,
+        adminField,
+        setAdminField,
+        onboardField,
+        setOnboardField,
+        onboardHandler,
+        loginField,
+        setLoginField,
+        admin,
       }}
     >
       {children}
