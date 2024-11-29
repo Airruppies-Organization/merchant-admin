@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import Header from "../app_component/header";
+import Header from "@/app/app_component/header";
 import Sub from "./sub";
 import CodeInput from "./codeInput";
 import { useContext } from "react";
-import CashierContext from "../context/cashierContext";
+import CashierContext from "../../../context/cashierContext";
 
 const Cashier = () => {
   const { cartItems } = useContext(CashierContext);

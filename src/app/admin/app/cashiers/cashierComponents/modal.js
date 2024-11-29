@@ -48,12 +48,12 @@ const Modal = ({ setModal, modal }) => {
             func={(e) => setEmail(e.target.value)}
             value={email}
           />
-          {/* <ModalInput
+          <ModalInput
             label={"Contact"}
             type="text"
             func={(e) => setContact(e.target.value)}
             value={contact}
-          /> */}
+          />
         </div>
         <div>
           <div className="mb-1 text-sm flex justify-between">
@@ -61,7 +61,7 @@ const Modal = ({ setModal, modal }) => {
             <p>Registered: {`${day}/${month}/${year}`}</p>
           </div>
           <button
-            onClick={() => addCashier(badge, name, email, contact)}
+            onClick={() => addCashier(name, email, contact, badge)}
             className="w-full h-12 rounded-md bg-[#61088E] text-white"
           >
             Submit

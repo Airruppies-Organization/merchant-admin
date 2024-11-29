@@ -11,6 +11,7 @@ import AdminContext from "@/app/context/adminContext";
 
 const Cashiers = () => {
   const { modal, cashiers, setModal, deleteModal } = useContext(AdminContext);
+
   return (
     <div className="pl-28 pr-48">
       <Header name="Victor K. Okafor" role="Admin" />
@@ -29,14 +30,14 @@ const Cashiers = () => {
               </tr>
             </thead>
             <tbody>
-              {cashiers.map((item, index) => {
+              {cashiers?.map((item, index) => {
                 return (
                   <TableRow
-                    key={item.id}
+                    key={index}
                     index={index}
-                    id={item.id}
-                    name={item.name}
-                    contact={item.contact}
+                    id={item.badge_id}
+                    name={item.fullName}
+                    contact={item.phoneNumber}
                     status={item.status}
                   />
                 );

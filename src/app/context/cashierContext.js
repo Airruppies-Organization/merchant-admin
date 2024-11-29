@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCashierLogin } from "../hooks/useCashierLogin";
 
 export const CashierContext = createContext();
 
@@ -13,6 +14,10 @@ export const CashierProvider = ({ children }) => {
   const [getErr, setGetErr] = useState("");
   const [values, setValues] = useState(["", "", ""]);
   const [voidModal, setVoidModal] = useState(false);
+  const [loginField, setLoginField] = useState({
+    badge_id: "",
+    password: "",
+  });
 
   const router = useRouter();
 
@@ -114,6 +119,8 @@ export const CashierProvider = ({ children }) => {
         voidModal,
         setVoidModal,
         voidHandler,
+        loginField,
+        setLoginField,
       }}
     >
       {children}

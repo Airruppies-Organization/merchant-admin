@@ -1,5 +1,5 @@
 import React from "react";
-import { Notifications, Setting } from "../../../public/icon";
+import { Notifications, Setting } from "../../../../../public/icon";
 
 const Sub = () => {
   return (

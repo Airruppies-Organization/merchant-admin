@@ -40,7 +40,7 @@ export function RevenueChart() {
         <div>
           <div className="flex">
             <div className="h-8 w-8 rounded-full bg-[#61088E] mr-2"></div>
-            <CardTitle>Monthly Recurring Revenue</CardTitle>
+            <CardTitle>Sales Analytics</CardTitle>
           </div>
           <p className="text-sm">Income</p>
           <div className="flex">

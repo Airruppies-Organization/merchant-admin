@@ -27,7 +27,7 @@ const Sales = () => {
               </tr>
             </thead>
             <tbody>
-              {sales.map((item, index) => {
+              {sales?.map((item, index) => {
                 return (
                   <TableRow
                     key={item._id}

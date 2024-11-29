@@ -3,32 +3,26 @@
 import React from "react";
 import Input from "@/app/components/input";
 import Header from "@/app/components/header";
-import AdminContext from "@/app/context/adminContext";
 import { useContext } from "react";
-import { useLogin } from "@/app/hooks/useLogin";
-import { useAuthContext } from "@/app/hooks/useAuthContext";
 import { useRouter } from "next/navigation";
+import CashierContext from "@/app/context/cashierContext";
+import Link from "next/link";
+import { useCashierLogin } from "@/app/hooks/useCashierLogin";
 
 const Login = () => {
-  const { loginField, setLoginField, admin } = useContext(AdminContext);
-  const { login, isLoading, error } = useLogin();
+  const { loginField, setLoginField } = useContext(CashierContext);
+  const { login, isLoading, error } = useCashierLogin();
+
   const router = useRouter();
 
-  const loginHandler = async () => {
-    const success = await login(loginField.email, loginField.password);
+  const checkIn = async () => {
+    const success = await login(loginField.badge_id, loginField.password);
 
-    if (success && admin.hasMerch) {
+    if (success) {
       // admin.hasMerch is one of the keys that is served from the backend, used to check if the admin has a merchant_id
-      router.push("/admin");
-    } else if (success && !admin.hasMerch) {
-      router.push("/onboard");
+      router.push("/cashier/app/codeInput");
     }
   };
-
-  /* Explanation: once an already signed up admin signs into the admin platform and doesnt have 
-    a merchant_id, he will be redirected to the onboarding section, because it is assumed that 
-    he wants to onboard a new business, if the admin already have a merchant_id, it means that 
-    he belongs to a particular business, and is therefore directed to his dashboard for the business  */
 
   return (
     <div>
@@ -37,17 +31,17 @@ const Login = () => {
         <p className="text-3xl mb-8">Login to your account</p>
         <div className="flex flex-col">
           <Input
-            label="Email"
-            type="email"
-            value={loginField.email}
+            label="Enter your BadgeID"
+            type="text"
+            value={loginField.badge_id}
             handler={(e) =>
               setLoginField((prev) => {
-                return { ...prev, email: e.target.value };
+                return { ...prev, badge_id: e.target.value };
               })
             }
           />
           <Input
-            label="Password"
+            label="Enter your password"
             type="password"
             value={loginField.password}
             handler={(e) =>
@@ -57,14 +51,21 @@ const Login = () => {
             }
           />
 
-          <div>
+          <div className="w-full border-b border-b-neutral-400 mb-1 pb-2">
             <button
-              onClick={loginHandler}
+              onClick={checkIn}
               className="bg-[#61088E] w-24 h-10 rounded-md text-white"
             >
               Submit
             </button>
             <p>{error}</p>
+          </div>
+          <div className="flex ">
+            If you dont have a password,
+            <Link href={"/cashier/auth/setPassword"}>
+              <p className="cursor-pointer text-[#61088E] mx-1">set password</p>
+            </Link>
+            here
           </div>
         </div>
       </section>

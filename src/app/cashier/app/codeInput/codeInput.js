@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useContext } from "react";
-import CashierContext from "../context/cashierContext";
+import CashierContext from "../../../context/cashierContext";
 
 const CodeInput = () => {
   const { values, setValues } = useContext(CashierContext);

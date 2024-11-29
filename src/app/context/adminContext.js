@@ -3,11 +3,13 @@ import { createContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthContext } from "../hooks/useAuthContext";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export const AdminContext = createContext();
 
 export const AdminProvider = ({ children }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const { admin } = useAuthContext();
 
   // state
@@ -19,6 +21,7 @@ export const AdminProvider = ({ children }) => {
   const [sales, setSales] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [chartFrame, setChartFrame] = useState("1Y");
+  const [dashboard, setDashboard] = useState({});
   const [adminField, setAdminField] = useState({
     firstName: "",
     lastName: "",
@@ -39,17 +42,40 @@ export const AdminProvider = ({ children }) => {
     password: "",
   });
 
-  // pathname.endsWith("/cashiers") &&
-  // useEffect(() => {
-  //   const fetcher = async () => {
-  //     const req = await axios.get("http://localhost:5000/cashiers");
-  //     setCashiers([...req.data]);
-  //   };
+  // useEffects
+  useEffect(() => {
+    const localAdmin = localStorage.getItem("admin");
+    if (
+      !localAdmin &&
+      !pathname.includes("auth") &&
+      pathname.includes("admin")
+    ) {
+      router.push("admin/auth/login");
+    }
+    if (localAdmin && pathname.includes("auth") && pathname.includes("admin")) {
+      router.push("/admin/app");
+    }
+  }, []);
 
-  //   fetcher();
-  // }, []);
+  useEffect(() => {
+    if (!admin) return;
 
-  // pathname.endsWith("/sales") &&
+    const getCashiers = async () => {
+      const res = await axios.get(
+        "http://localhost:7000/merchant/api/getCashiers",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${admin?.token}`,
+          },
+        }
+      );
+
+      setCashiers(res.data);
+    };
+    getCashiers();
+  }, [admin]);
+
   useEffect(() => {
     const saleFetcher = async () => {
       const req = await axios.get(
@@ -57,14 +83,15 @@ export const AdminProvider = ({ children }) => {
         {
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${admin.token}`,
+            authorization: `Bearer ${admin?.token}`,
           },
         }
       );
-      setSales([...req.data]);
+
+      setSales(...req.data);
     };
 
-    saleFetcher();
+    admin && saleFetcher();
   }, [admin]);
 
   useEffect(() => {
@@ -75,7 +102,7 @@ export const AdminProvider = ({ children }) => {
           {
             headers: {
               "Content-Type": "application/json",
-              authorization: `Bearer ${admin.token}`,
+              authorization: `Bearer ${admin?.token}`,
             },
           }
         );
@@ -126,8 +153,28 @@ export const AdminProvider = ({ children }) => {
       }
     };
 
-    fetchData();
+    admin && fetchData();
   }, [setChartData, chartFrame, admin]);
+
+  useEffect(() => {
+    if (!admin?.hasMerch) return;
+
+    const dashboard = async () => {
+      const req = await axios.get(
+        "http://localhost:7000/merchant/api/dashboard",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${admin?.token}`,
+          },
+        }
+      );
+
+      setDashboard(req.data);
+    };
+
+    dashboard();
+  }, [admin]);
 
   const deleteCashier = async (id) => {
     // await fetch(`http://localhost:5000/cashiers/${id}`, {
@@ -141,17 +188,26 @@ export const AdminProvider = ({ children }) => {
     setDeleteModal(false);
   };
 
-  const addCashier = async (id, name, email, contact) => {
+  const addCashier = async (fullName, email, phoneNumber, badge_id) => {
     const data = {
-      id,
-      name,
+      fullName,
       email,
-      contact,
-      status: true,
+      phoneNumber,
+      badge_id,
     };
-    // await axios.post("http://localhost:5000/cashiers", data);
+    console.log(email);
+    const result = await axios.post(
+      "http://localhost:7000/merchant/api/createCashier",
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }
+    );
 
-    setCashiers((prev) => [...prev, data]);
+    setCashiers((prev) => [...prev, result.data]);
 
     setModal(false);
   };
@@ -162,7 +218,7 @@ export const AdminProvider = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: `Bearer ${admin.token}`,
+          authorization: `Bearer ${admin?.token}`,
         },
         body: JSON.stringify({
           name: onboardField.name,
@@ -178,6 +234,11 @@ export const AdminProvider = ({ children }) => {
 
       const result = await res.json();
       console.log("Onboarding successful:", result);
+      localStorage.setItem(
+        "admin",
+        JSON.stringify({ ...admin, hasMerch: true })
+      );
+      router.push("/admin");
     } catch (error) {
       console.error("Error onboarding merchant:", error);
     }
@@ -212,7 +273,8 @@ export const AdminProvider = ({ children }) => {
         onboardHandler,
         loginField,
         setLoginField,
-        admin,
+        dashboard,
+        setDashboard,
       }}
     >
       {children}
