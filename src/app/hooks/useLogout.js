@@ -9,10 +9,12 @@ export const useLogout = () => {
 
   // const { setOrders, setCart } = useContext(DataContext);
 
-  const logout = (email, password) => {
+  const logout = () => {
     localStorage.removeItem("admin");
 
     dispatch({ type: "LOGOUT" });
+
+    return true;
     // setOrders([]);
     // setCart([]);
   };

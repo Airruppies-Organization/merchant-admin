@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext } from "react";
-import { Delete } from "../../../../../public/icon";
+// import { Delete } from "../../../../../public/icon";
 import AdminContext from "@/app/context/adminContext";
 
 const TableRow = ({ id, name, contact, status, index }) => {

@@ -9,7 +9,7 @@ import SideNav from "./app_component/sideNav";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = pathname.includes("/admin") && pathname.includes("/app");
 
   return (
     <ThemeProvider theme={theme}>

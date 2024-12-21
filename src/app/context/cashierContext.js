@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCashierLogin } from "../hooks/useCashierLogin";
+import { useCashierAuthContext } from "../hooks/useCashierAuthContext";
+import { usePathname, useRouter } from "next/navigation";
 
 export const CashierContext = createContext();
 
@@ -20,30 +20,45 @@ export const CashierProvider = ({ children }) => {
   });
 
   const router = useRouter();
+  const pathname = usePathname();
+  const { cashier } = useCashierAuthContext();
 
-  // useEffect(() => {
-  //   const sessData = localStorage.getItem("currSession");
+  useEffect(() => {
+    const currSession = localStorage.getItem("currSession");
+    setCart(currSession ? JSON.parse(currSession) : []); // or any default value
+  }, []);
 
-  //   try {
-  //     const parsedData = sessData ? JSON.parse(sessData) : null;
-  //     if (!parsedData) {
-  //       router.push("/cashier");
-  //     } else {
-  //       setCart(parsedData);
-  //     }
-  //   } catch (error) {
-  //     console.error("Invalid session data:", error);
-  //     localStorage.removeItem("currSession");
-  //     router.push("/cashier");
-  //   }
-  // }, []);
+  useEffect(() => {
+    const localCashier = localStorage.getItem("cashier");
+    if (
+      !localCashier &&
+      !pathname.includes("auth") &&
+      pathname.includes("cashier") &&
+      !pathname.includes("admin") // to be reviewed
+    ) {
+      router.push("/cashier/auth/login");
+    }
+    if (
+      localCashier &&
+      pathname.includes("auth") &&
+      pathname.includes("cashier") &&
+      !pathname.includes("admin") // to be reviewed
+    ) {
+      router.push("/cashier/app/codeInput");
+    }
+  }, [cashier]);
 
   const cartItems = async () => {
     const code = values.join("");
 
     try {
       const response = await fetch(
-        `http://localhost:7000/api/sessionData?code=${code}`
+        `http://localhost:7000/merchant/cashier/sessionData?code=${code}`,
+        {
+          headers: {
+            authorization: `Bearer ${cashier.token}`,
+          },
+        }
       );
 
       if (!response.ok) {
@@ -59,7 +74,7 @@ export const CashierProvider = ({ children }) => {
       setValues(["", "", ""]);
 
       // Navigate to the cart page
-      router.push("/cashier/cart");
+      router.push("/cashier/app/cart");
     } catch (error) {
       console.error("Error fetching session data:", error.message);
       alert(error.message);
@@ -68,34 +83,68 @@ export const CashierProvider = ({ children }) => {
   };
 
   const clearItem = async (meth, vod) => {
-    const post = await fetch("http://localhost:7000/api/salesData", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...cart,
-        status: !vod ? "Paid" : vod,
-        method: meth,
-        total: cart.data.reduce((prev, curr) => prev + curr.price, 0),
-      }),
-    });
+    try {
+      // Calculate the total price
+      const totalPrice = cart.data.reduce((prev, curr) => prev + curr.price, 0);
 
-    await post.json();
+      // POST request to save sales data
+      const postResponse = await fetch(
+        "http://localhost:7000/merchant/cashier/salesData",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${cashier.token}`,
+          },
+          body: JSON.stringify({
+            code: cart.code,
+            data: [...cart.data],
+            status: !vod ? "Paid" : vod,
+            method: meth,
+            total: totalPrice,
+          }),
+        }
+      );
 
-    alert("Cart items cleared successfully");
-
-    const response = await fetch(
-      `http://localhost:7000/api/sessionData?code=${cart.code}`,
-      {
-        method: "DELETE",
+      // Handle POST response
+      if (!postResponse.ok) {
+        const error = await postResponse.json();
+        throw new Error(`Error saving sales data: ${error.message}`);
       }
-    );
 
-    await response.json();
+      console.log("Sales data saved successfully:", await postResponse.json());
 
-    localStorage.removeItem("currSession");
-    router.push("/cashier");
+      // DELETE request to clear session data
+      const deleteResponse = await fetch(
+        `http://localhost:7000/merchant/cashier/sessionData?code=${encodeURIComponent(
+          cart.code
+        )}`,
+        {
+          method: "DELETE",
+          headers: {
+            authorization: `Bearer ${cashier.token}`,
+          },
+        }
+      );
+
+      // Handle DELETE response
+      if (!deleteResponse.ok) {
+        const error = await deleteResponse.json();
+        throw new Error(`Error clearing session data: ${error.message}`);
+      }
+
+      if (deleteResponse.ok) {
+        await deleteResponse.json();
+
+        // Notify the user and reset the session
+        alert("Cart items cleared successfully");
+        localStorage.removeItem("currSession");
+        router.push("/cashier/app/codeInput");
+      }
+    } catch (error) {
+      console.error("Error:", error.message);
+      alert(`An error occurred: ${error.message}`);
+    }
   };
 
   const voidHandler = (cond) => {

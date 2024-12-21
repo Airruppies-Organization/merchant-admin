@@ -51,15 +51,23 @@ const Login = () => {
             }
           />
 
-          <div className="w-full border-b border-b-neutral-400 mb-1 pb-2">
+          <div className="w-full flex justify-between items-center border-b border-b-neutral-400 mb-1 pb-2">
             <button
               onClick={checkIn}
               className="bg-[#61088E] w-24 h-10 rounded-md text-white"
             >
               Submit
             </button>
-            <p>{error}</p>
+            <div className="flex space-x-1">
+              <p
+                onClick={() => router.push("/cashier/auth/forgot")}
+                className="text-[#61088E] cursor-pointer"
+              >
+                Forgot password?
+              </p>
+            </div>
           </div>
+          <p>{error}</p>
           <div className="flex ">
             If you dont have a password,
             <Link href={"/cashier/auth/setPassword"}>

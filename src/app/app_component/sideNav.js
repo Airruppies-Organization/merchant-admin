@@ -14,16 +14,17 @@ const SideNav = () => {
       <LogoIcon className="h-16 w-16 mb-12" />
 
       <div className="flex flex-col items-center">
-        <Link href="/admin">
+        <Link href="/admin/app">
           <Dashboard className="h-10 w-10 mb-5 hover:cursor-pointer hover:bg-[#7F1AB2] p-2 rounded-lg" />
         </Link>
-        <Link href="/admin/sales">
+        <Link href="/admin/app/sales">
           <Sales className="h-10 w-10 mb-5 hover:cursor-pointer hover:bg-[#7F1AB2] p-2 rounded-lg" />
         </Link>
-        <Link href="/admin/cashiers">
+        <Link href="/admin/app/cashiers">
           <Cashier className="fill-white h-11 w-11 mb-5 hover:cursor-pointer hover:bg-[#7F1AB2] p-2 rounded-lg" />
         </Link>
-        <Link href="/admin/notifications">
+
+        <Link href="/admin/app/notifications">
           <Notifications className="fill-white h-10 w-10 mb-5 hover:cursor-pointer hover:bg-[#7F1AB2] p-2 rounded-lg" />
         </Link>
       </div>

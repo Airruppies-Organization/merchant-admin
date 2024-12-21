@@ -17,6 +17,8 @@ export const AdminProvider = ({ children }) => {
   const [modal, setModal] = useState(false); // modal form to add cashier
   const [deleteModal, setDeleteModal] = useState(false); // modal to delete cashier
   const [cashiers, setCashiers] = useState([]); // list of cashiers
+  const [linkModal, setLinkModal] = useState(false);
+  const [link, setLink] = useState("");
   const [curr, setCurr] = useState(null); // current cashier to delete
   const [sales, setSales] = useState([]);
   const [chartData, setChartData] = useState([]);
@@ -33,8 +35,10 @@ export const AdminProvider = ({ children }) => {
   const [onboardField, setOnboardField] = useState({
     name: "",
     address: "",
-    state: "",
-    logo: "https://banner2.cleanpng.com/20180712/tl/aawy1ozzf.webp",
+    state: "Lagos",
+    logo: "",
+    lat: "",
+    lng: "",
   });
 
   const [loginField, setLoginField] = useState({
@@ -50,7 +54,7 @@ export const AdminProvider = ({ children }) => {
       !pathname.includes("auth") &&
       pathname.includes("admin")
     ) {
-      router.push("admin/auth/login");
+      router.push("/admin/auth/login");
     }
     if (localAdmin && pathname.includes("auth") && pathname.includes("admin")) {
       router.push("/admin/app");
@@ -88,7 +92,7 @@ export const AdminProvider = ({ children }) => {
         }
       );
 
-      setSales(...req.data);
+      setSales(req.data);
     };
 
     admin && saleFetcher();
@@ -127,13 +131,11 @@ export const AdminProvider = ({ children }) => {
           switch (chartFrame) {
             case "1D":
               return `${entry._id.hour}:${entry._id.minute}`;
-
             case "5D":
             case "1M":
-              return `${entry._id.day} ${monthNames[entry._id.month]}`;
-
+              return `${entry._id.day} ${monthNames[entry._id.month - 1]}`;
             case "1Y":
-              return `${monthNames[entry._id.month]} ${entry._id.year}`;
+              return `${monthNames[entry._id.month - 1]}, ${entry._id.year}`;
             default:
               return "invalid ChartFrame";
           }
@@ -141,10 +143,11 @@ export const AdminProvider = ({ children }) => {
 
         const formattedData = result.sales.map((entry) => ({
           // Create a readable date label
+
           label: chartRule(entry, chartFrame),
 
           // Round up sales
-          sales: Math.ceil(entry.sales),
+          sales: entry.sales,
         }));
 
         setChartData(formattedData);
@@ -161,7 +164,7 @@ export const AdminProvider = ({ children }) => {
 
     const dashboard = async () => {
       const req = await axios.get(
-        "http://localhost:7000/merchant/api/dashboard",
+        "http://localhost:7000/merchant/api/sales-summary",
         {
           headers: {
             "Content-Type": "application/json",
@@ -220,12 +223,7 @@ export const AdminProvider = ({ children }) => {
           "Content-Type": "application/json",
           authorization: `Bearer ${admin?.token}`,
         },
-        body: JSON.stringify({
-          name: onboardField.name,
-          address: onboardField.address,
-          state: onboardField.state,
-          logo: "https://banner2.cleanpng.com/20180712/tl/aawy1ozzf.webp",
-        }),
+        body: JSON.stringify(onboardField),
       });
 
       if (!res.ok) {
@@ -238,10 +236,28 @@ export const AdminProvider = ({ children }) => {
         "admin",
         JSON.stringify({ ...admin, hasMerch: true })
       );
-      router.push("/admin");
+      router.push("/admin/app");
     } catch (error) {
       console.error("Error onboarding merchant:", error);
     }
+  };
+
+  const addAdmin = async () => {
+    const res = await axios.get("http://localhost:7000/merchant/api/getHash", {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${admin.token}`,
+      },
+    });
+
+    if (res.status === 200) {
+      setLinkModal(true);
+      setLink(
+        `http://localhost:3000/admin/auth/signup?merch_id=${res.data.merch_id}`
+      );
+    }
+
+    console.log(linkModal);
   };
 
   return (
@@ -275,6 +291,11 @@ export const AdminProvider = ({ children }) => {
         setLoginField,
         dashboard,
         setDashboard,
+        addAdmin,
+        linkModal,
+        setLinkModal,
+        link,
+        setLink,
       }}
     >
       {children}

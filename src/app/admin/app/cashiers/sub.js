@@ -1,5 +1,5 @@
 import React from "react";
-import { Filter, Add, Search } from "../../../../public/icon";
+import { Filter, Add, Search } from "../../../../../public/icon";
 
 const Sub = ({ setModal, modal }) => {
   return (

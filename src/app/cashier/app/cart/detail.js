@@ -6,7 +6,7 @@ import CashierContext from "@/app/context/cashierContext";
 import { useContext } from "react";
 
 const Detail = ({ status, method, total }) => {
-  const { setVoidModal } = useContext(CashierContext);
+  const { setVoidModal, clearItem, cart } = useContext(CashierContext);
   return (
     <div className="w-[22vw] h-full">
       <div className="bg-[#F9F9F9] rounded-xl">
@@ -48,13 +48,19 @@ const Detail = ({ status, method, total }) => {
         </div>
       </div>
 
-      <Clear />
+      {/* <Clear /> */}
       <button
+        onClick={() => clearItem(cart.method)}
+        className="px-6 py-3 rounded-lg text-xs bg-[#61088E] text-white mt-6"
+      >
+        Clear order
+      </button>
+      {/* <button
         onClick={() => setVoidModal(() => true)}
         className="px-6 py-3 rounded-lg text-xs bg-[#D50F0F] text-white mt-6"
       >
         Void Products
-      </button>
+      </button> */}
     </div>
   );
 };

@@ -19,10 +19,23 @@ const Login = () => {
     const admin = JSON.parse(localStorage.getItem("admin"));
 
     if (success && admin.hasMerch) {
+      setLoginField({
+        badge_id: "",
+        password: "",
+      });
       // admin.hasMerch is one of the keys that is served from the backend, used to check if the admin has a merchant_id
-      router.push("/admin");
+      router.push("/admin/app");
     } else if (success && !admin.hasMerch) {
+      setLoginField({
+        badge_id: "",
+        password: "",
+      });
       router.push("/onboard");
+    } else {
+      setLoginField({
+        badge_id: "",
+        password: "",
+      });
     }
   };
 
@@ -58,15 +71,23 @@ const Login = () => {
             }
           />
 
-          <div>
+          <div className="flex space-x-1 justify-between items-center">
             <button
               onClick={loginHandler}
               className="bg-[#61088E] w-24 h-10 rounded-md text-white"
             >
               Submit
             </button>
-            <p>{error}</p>
+            <div className="flex space-x-1">
+              <p
+                onClick={() => router.push("/admin/auth/forgot")}
+                className="text-[#61088E] cursor-pointer"
+              >
+                Forgot password?
+              </p>
+            </div>
           </div>
+          <p>{error}</p>
         </div>
       </section>
     </div>

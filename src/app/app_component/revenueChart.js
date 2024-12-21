@@ -77,7 +77,13 @@ export function RevenueChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => {
+                if (chartData.length < 8) {
+                  return value;
+                } else {
+                  return value.slice(0, 3);
+                }
+              }}
             />
             <YAxis
               dataKey="sales"

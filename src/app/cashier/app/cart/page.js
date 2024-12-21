@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect } from "react";
-import Sub from "../sub";
-import Header from "../../app_component/header";
+import Sub from "../codeInput/sub";
+import Header from "@/app/app_component/header";
 import Products from "./product";
 import Detail from "./detail";
 import CashierContext from "@/app/context/cashierContext";
@@ -36,8 +36,9 @@ const Cart = () => {
               <p className="w-full border-b border-b-black">Orders</p>
               <div className="w-full">
                 {cart?.data?.length ? (
-                  cart.data.map((item) => (
+                  cart.data.map((item, index) => (
                     <Products
+                      key={index}
                       id={item._id}
                       name={item.name}
                       price={item.price}
@@ -54,7 +55,7 @@ const Cart = () => {
             <Detail
               status={cart.status}
               method={cart.method}
-              total={cart.data.reduce((a, b) => a + b.price, 0)}
+              total={cart?.data?.reduce((a, b) => a + b.price, 0)}
             />
           </div>
         </section>

@@ -7,42 +7,18 @@ import { useContext } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import CashierContext from "@/app/context/cashierContext";
+import { useSetCashierPassword } from "@/app/hooks/useSetPassword";
 
 const SetPassword = () => {
-  const [error, setError] = useState();
+  const { setPassword, isLoading, error } = useSetCashierPassword();
   const [passwordField, setPasswordField] = useState({
     password: "",
     confirm: "",
     badge: "",
   });
 
-  const router = useRouter();
-
   const updatePassword = async () => {
-    const res = await fetch(
-      "http://localhost:7000/merchant/cashier/auth/createPassword",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Fixed typo here
-        },
-        body: JSON.stringify({
-          badge_id: passwordField.badge,
-          password: passwordField.password,
-        }),
-      }
-    );
-
-    const result = await res.json();
-
-    if (res.ok) {
-      router.push("/cashier/app/codeInput");
-    }
-
-    if (!res.ok) {
-      console.log(result.error);
-      setError(result.error);
-    }
+    setPassword(passwordField.badge, passwordField.password);
   };
 
   return (

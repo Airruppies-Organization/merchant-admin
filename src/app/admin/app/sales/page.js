@@ -20,7 +20,7 @@ const Sales = () => {
           <table className="w-full text-left text-sm">
             <thead className="h-10">
               <tr>
-                <th className="pl-4">Ref. ID</th>
+                <th className="pl-4">Session Code</th>
                 <th>Total</th>
                 <th>Method</th>
                 <th>Sales</th>
@@ -32,7 +32,7 @@ const Sales = () => {
                   <TableRow
                     key={item._id}
                     index={index}
-                    id={item.id}
+                    id={item.code}
                     total={item.total}
                     status={item.status}
                     method={item.method}

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Input from "../../components/input";
-import Header from "../../components/header";
+import Input from "@/app/components/input";
+import Header from "@/app/components/header";
 import { useContext } from "react";
 import AdminContext from "@/app/context/adminContext";
 import { useSignup } from "@/app/hooks/useSignup";
@@ -23,7 +23,7 @@ const Password = () => {
     );
 
     if (success) {
-      router.push("/onboard");
+      router.push("/admin/onboard");
     }
   };
 

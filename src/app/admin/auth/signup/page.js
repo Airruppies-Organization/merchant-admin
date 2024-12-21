@@ -6,9 +6,11 @@ import Header from "@/app/components/header";
 import Link from "next/link";
 import AdminContext from "@/app/context/adminContext";
 import { useContext } from "react";
+import { useRouter } from "next/navigation";
 
 const Signup = () => {
   const { adminField, setAdminField } = useContext(AdminContext);
+  const router = useRouter();
 
   return (
     <div>
@@ -46,11 +48,23 @@ const Signup = () => {
               })
             }
           />
-          <Link href={"/auth/password"}>
-            <button className="bg-[#61088E] w-24 h-10 rounded-md text-white">
-              Next
-            </button>
-          </Link>
+          <div className="w-full flex justify-between">
+            <Link href={"/admin/auth/password"}>
+              <button className="bg-[#61088E] w-24 h-10 rounded-md text-white">
+                Next
+              </button>
+            </Link>
+
+            <div className="flex space-x-1">
+              <p>Already a registered admin?</p>
+              <p
+                onClick={() => router.push("/admin/auth/login")}
+                className="text-[#61088E] cursor-pointer"
+              >
+                Signup here
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </div>

@@ -2,7 +2,7 @@
 
 import React, { useContext } from "react";
 import AdminContext from "@/app/context/adminContext";
-import { Cancel } from "../../../../../public/icon";
+import { Cancel } from "../../../../../../public/icon";
 
 const DeleteModal = () => {
   const {
