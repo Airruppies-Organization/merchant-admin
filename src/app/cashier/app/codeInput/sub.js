@@ -8,8 +8,8 @@ const Sub = () => {
         View Sales
       </button>
       <div className="flex ">
-        <Notifications className="fill-black w-5 h-5 mr-6" />
-        <Setting className="fill-black w-5 h-5" />
+        <Notifications className="fill-neutral-700 w-5 h-5 mr-6" />
+        <Setting className="fill-neutral-700 w-5 h-5" />
       </div>
     </div>
   );

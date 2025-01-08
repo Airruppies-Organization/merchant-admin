@@ -35,7 +35,7 @@ export function RevenueChart() {
     setChartFrame(frame);
   };
   return (
-    <Card className=" relative mb-10 w-[29rem] bg-[#fdfdfd] p-3 rounded-3xl mr-5">
+    <Card className="relative mb-10 w-[28rem] bg-[#fdfdfd] p-3 rounded-lg mr-5">
       <CardHeader>
         <div>
           <div className="flex">

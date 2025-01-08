@@ -11,9 +11,7 @@ const Sales = () => {
   const { sales } = useContext(AdminContext);
 
   return (
-    <div className="pl-28 pr-48">
-      <Header name="Victor K. Okafor" role="Admin" />
-
+    <div className="px-16 pt-10">
       <section className="w-full">
         <Sub />
         <div className="w-full">

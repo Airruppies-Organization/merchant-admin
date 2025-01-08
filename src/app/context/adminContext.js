@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useAuthContext } from "../hooks/useAuthContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useLogout } from "@/app/hooks/useLogout";
 
 export const AdminContext = createContext();
 
@@ -11,6 +12,7 @@ export const AdminProvider = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { admin } = useAuthContext();
+  const { logout } = useLogout();
 
   // state
 
@@ -31,6 +33,8 @@ export const AdminProvider = ({ children }) => {
     password: "",
     merchant_id: "",
   });
+  const [paymentTypes, setPaymentTypes] = useState([]);
+  const [activePaymentTypes, setActivePaymentTypes] = useState([]);
 
   const [onboardField, setOnboardField] = useState({
     name: "",
@@ -44,6 +48,27 @@ export const AdminProvider = ({ children }) => {
   const [loginField, setLoginField] = useState({
     email: "",
     password: "",
+  });
+
+  const [urlField, setUrlField] = useState({
+    get_api: "",
+    update_api: {
+      url: "",
+      method: "put",
+    },
+  });
+
+  const [schemaDef, setSchemaDef] = useState({
+    name: "",
+    quantity: "",
+    price: "",
+    gtin: "",
+  });
+
+  const [paySetting, setPaySetting] = useState({
+    cash: true,
+    card: true,
+    transfer: true,
   });
 
   // useEffects
@@ -74,7 +99,6 @@ export const AdminProvider = ({ children }) => {
           },
         }
       );
-
       setCashiers(res.data);
     };
     getCashiers();
@@ -160,11 +184,11 @@ export const AdminProvider = ({ children }) => {
   }, [setChartData, chartFrame, admin]);
 
   useEffect(() => {
-    if (!admin?.hasMerch) return;
+    if (!admin) return;
 
-    const dashboard = async () => {
-      const req = await axios.get(
-        "http://localhost:7000/merchant/api/sales-summary",
+    const fetcher = async () => {
+      const req = await fetch(
+        "http://localhost:7000/merchant/api/paymentTypes",
         {
           headers: {
             "Content-Type": "application/json",
@@ -173,11 +197,35 @@ export const AdminProvider = ({ children }) => {
         }
       );
 
-      setDashboard(req.data);
-    };
+      const result = await req.json();
 
-    dashboard();
+      setPaymentTypes(result.paymentTypes);
+      setActivePaymentTypes(() =>
+        result.merchantPaymentTypes?.map((item) => item._id)
+      );
+    };
+    fetcher();
   }, [admin]);
+
+  // useEffect(() => {
+  //   if (!admin?.hasMerch) return;
+
+  //   const dashboard = async () => {
+  //     const req = await axios.get(
+  //       "http://localhost:7000/merchant/api/sales-summary",
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           authorization: `Bearer ${admin?.token}`,
+  //         },
+  //       }
+  //     );
+
+  //     setDashboard(req.data);
+  //   };
+
+  //   dashboard();
+  // }, [admin]);
 
   const deleteCashier = async (id) => {
     // await fetch(`http://localhost:5000/cashiers/${id}`, {
@@ -260,6 +308,39 @@ export const AdminProvider = ({ children }) => {
     console.log(linkModal);
   };
 
+  const logoutHandler = () => {
+    const success = logout();
+    if (success) {
+      router.push("/admin/auth/login");
+    }
+  };
+
+  const settingsHandler = async () => {
+    const res = await fetch("http://localhost:7000/merchant/api/configureApi", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${admin.token}`,
+      },
+      body: JSON.stringify({ urlField, schemaDef }),
+    });
+
+    const response = await res.json();
+  };
+
+  const paymentTypesHandler = async () => {
+    const res = await fetch("http://localhost:7000/merchant/api/paymentTypes", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${admin.token}`,
+      },
+      body: JSON.stringify({ paymentTypes: activePaymentTypes }),
+    });
+
+    await res.json();
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -296,6 +377,19 @@ export const AdminProvider = ({ children }) => {
         setLinkModal,
         link,
         setLink,
+        logoutHandler,
+        urlField,
+        setUrlField,
+        schemaDef,
+        setSchemaDef,
+        paySetting,
+        setPaySetting,
+        settingsHandler,
+        paymentTypes,
+        setPaymentTypes,
+        activePaymentTypes,
+        setActivePaymentTypes,
+        paymentTypesHandler,
       }}
     >
       {children}
