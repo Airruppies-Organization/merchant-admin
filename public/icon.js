@@ -10,3 +10,4 @@ export { default as Filter } from "./filter.svg";
 export { default as Add } from "./add.svg";
 export { default as Search } from "./search.svg";
 export { default as Cancel } from "./cancel.svg";
+export { default as Angle } from "./angle.svg";

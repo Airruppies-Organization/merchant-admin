@@ -13,7 +13,9 @@ const Password = () => {
   const { signup, isLoading, error } = useSignup();
   const router = useRouter();
 
-  const signupHandler = async () => {
+  const signupHandler = async (e) => {
+    e.preventDefault();
+
     const success = await signup(
       adminField.firstName,
       adminField.lastName,
@@ -22,9 +24,13 @@ const Password = () => {
       adminField.merchant_id
     );
 
-    if (success) {
-      router.push("/admin/onboard");
-    }
+    // if (success) {
+    //   router.push("/admin/onboard");
+    // }
+
+    if (success.hasMerch) {
+      router.push("/admin/app");
+    } else router.push("/admin/onboard");
   };
 
   return (
@@ -32,7 +38,7 @@ const Password = () => {
       <Header />
       <section className="w-[52vw] ml-auto mr-auto pt-8">
         <p className="text-3xl mb-8">Set Password</p>
-        <div className="flex flex-col">
+        <form onSubmit={signupHandler} className="flex flex-col">
           <Input
             label="Create Password"
             type="password"
@@ -46,6 +52,7 @@ const Password = () => {
           <Input label="Confirm Password" type="password" />
           <div className="flex justify-between w-full">
             <button
+              type="submit"
               onClick={signupHandler}
               className="bg-[#61088E] w-24 h-10 rounded-md text-white"
             >
@@ -54,7 +61,7 @@ const Password = () => {
 
             <p>{error}</p>
           </div>
-        </div>
+        </form>
       </section>
     </div>
   );

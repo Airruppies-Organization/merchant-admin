@@ -21,7 +21,7 @@ const Cashier = () => {
         <CodeInput />
 
         <button
-          onClick={() => cartItems()}
+          onClick={cartItems}
           className="text-white bg-[#61088E] py-2 px-8 text-sm rounded-lg mt-5"
         >
           Submit

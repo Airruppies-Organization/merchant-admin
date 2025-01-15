@@ -17,7 +17,7 @@ const DeleteModal = () => {
   return (
     <div
       onClick={() => setDeleteModal(!deleteModal)}
-      className="fixed top-0 left-0 w-screen h-screen bg-neutral-900 bg-opacity-30 flex items-center justify-center"
+      className="fixed top-0 left-0 w-screen h-screen bg-neutral-900 bg-opacity-30 flex items-center justify-center z-30"
     >
       <div
         onClick={(e) => e.stopPropagation()}

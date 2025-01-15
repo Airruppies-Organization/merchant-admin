@@ -3,7 +3,7 @@ import { Notifications, Setting } from "../../../../../public/icon";
 
 const Sub = () => {
   return (
-    <div className="flex w-full justify-between">
+    <div className="flex w-full justify-between mt-10">
       <button className="p-2 bg-[#61088E] text-white rounded-lg text-sm">
         View Sales
       </button>

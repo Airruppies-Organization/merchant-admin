@@ -10,33 +10,19 @@ import { useAuthContext } from "@/app/hooks/useAuthContext";
 import { useRouter } from "next/navigation";
 
 const Login = () => {
-  const { loginField, setLoginField } = useContext(AdminContext);
+  const { loginField, setLoginField, setIsAuthenticated } =
+    useContext(AdminContext);
   const { login, isLoading, error } = useLogin();
   const router = useRouter();
 
   const loginHandler = async () => {
     const success = await login(loginField.email, loginField.password);
-    const admin = JSON.parse(localStorage.getItem("admin"));
+    // const admin = JSON.parse(localStorage.getItem("admin"));
 
-    if (success && admin.hasMerch) {
-      setLoginField({
-        badge_id: "",
-        password: "",
-      });
-      // admin.hasMerch is one of the keys that is served from the backend, used to check if the admin has a merchant_id
+    if (success.hasMerch) {
+      setIsAuthenticated(true);
       router.push("/admin/app");
-    } else if (success && !admin.hasMerch) {
-      setLoginField({
-        badge_id: "",
-        password: "",
-      });
-      router.push("/onboard");
-    } else {
-      setLoginField({
-        badge_id: "",
-        password: "",
-      });
-    }
+    } else router.push("/admin/onboard");
   };
 
   /* Explanation: once an already signed up admin signs into the admin platform and doesnt have 
@@ -48,7 +34,21 @@ const Login = () => {
     <div>
       <Header />
       <section className="w-[52vw] ml-auto mr-auto pt-8">
-        <p className="text-3xl mb-8">Login to your account</p>
+        <div className="flex justify-between items-baseline w-full mb-8">
+          <p className="text-3xl">Login to your account</p>
+          <div className="flex space-x-2">
+            <p className="text-sm">Don't have an account? </p>
+            <p
+              onClick={() => {
+                router.push("/admin/auth/signup");
+              }}
+              className="text-sm text-[#61088E] font-semibold cursor-pointer"
+            >
+              Signup here
+            </p>
+          </div>
+        </div>
+
         <div className="flex flex-col">
           <Input
             label="Email"

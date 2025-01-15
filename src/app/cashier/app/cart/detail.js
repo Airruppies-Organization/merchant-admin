@@ -17,7 +17,7 @@ const Detail = ({ status, method, total }) => {
         <div className="py-1 px-3 border-b border-b-black">
           <span className="flex justify-between mb-2 text-xs">
             <p>Sub Total:</p>
-            <p>{total}</p>
+            <p>{total && total.toFixed(2)}</p>
           </span>
           <span className="flex justify-between mb-2 text-xs">
             <p>VAT:</p>
@@ -31,15 +31,22 @@ const Detail = ({ status, method, total }) => {
         <div className="py-1 px-3 font-semibold">
           <span className="flex justify-between mb-2 text-sm">
             <p>Total</p>
-            <p>{total}</p>
+            <p>{total && total.toFixed(2)}</p>
           </span>
           <span className="flex justify-between mb-2 text-sm">
             <p>Status</p>
-            {status === "paid" ? (
+            <p
+              className={`${
+                status === "paid" ? "text-[#0FBD00]" : "text-[#e02121]"
+              }`}
+            >
+              {status}
+            </p>
+            {/* {status === "paid" ? (
               <p className="text-[#0FBD00]">Paid</p>
             ) : (
-              <p className="text-[#e02121]">Not Paid</p>
-            )}
+              <p className="">Not Paid</p>
+            )} */}
           </span>
           <span className="flex justify-between mb-2 text-sm">
             <p>Mode of Payment:</p>
@@ -50,7 +57,7 @@ const Detail = ({ status, method, total }) => {
 
       {/* <Clear /> */}
       <button
-        onClick={() => clearItem(cart.method)}
+        onClick={clearItem}
         className="px-6 py-3 rounded-lg text-xs bg-[#61088E] text-white mt-6"
       >
         Clear order

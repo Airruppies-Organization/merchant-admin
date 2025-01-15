@@ -4,7 +4,8 @@ import { useAuthContext } from "./useAuthContext";
 export const useLogin = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
-  const { dispatch } = useAuthContext();
+  // const [redirect, setRedirect] = useState("");
+  // const { dispatch } = useAuthContext();
 
   const login = async (email, password) => {
     setIsLoading(true);
@@ -17,6 +18,7 @@ export const useLogin = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       }
     );
@@ -29,11 +31,11 @@ export const useLogin = () => {
     }
 
     if (response.ok) {
-      localStorage.setItem("admin", JSON.stringify(result));
+      // setRedirect(result.redirect);
       // alert(`${result}`);
-      dispatch({ type: "SIGNUP", payload: result });
+      // dispatch({ type: "SIGNUP", payload: result });
       setIsLoading(false);
-      return true;
+      return result;
     }
   };
 

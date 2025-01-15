@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import Header from "@/app/app_component/header";
 import TableRow from "./cashierComponents/tableRow";
@@ -10,12 +9,28 @@ import { useContext } from "react";
 import AdminContext from "@/app/context/adminContext";
 
 const Cashiers = () => {
-  const { modal, cashiers, setModal, deleteModal } = useContext(AdminContext);
+  const {
+    modal,
+    cashiers,
+    setModal,
+    deleteModal,
+    cashierSearch,
+    setCashierSearch,
+    handleSearchCashier,
+    handleActiveCashier,
+  } = useContext(AdminContext);
 
   return (
     <div className="px-16 pt-10">
       <section className="w-full">
-        <Sub setModal={setModal} modal={modal} />
+        <Sub
+          setModal={setModal}
+          modal={modal}
+          cashierSearch={cashierSearch}
+          setCashierSearch={setCashierSearch}
+          handleSearchCashier={handleSearchCashier}
+          handleActiveCashier={handleActiveCashier}
+        />
         <div className="w-full">
           <table className="w-full text-left text-sm">
             <thead className="h-10">
@@ -42,7 +57,9 @@ const Cashiers = () => {
               })}
             </tbody>
           </table>
-          <div className="w-full h-12 flex items-center justify-center">
+
+          {/* PAGINATION */}
+          {/* <div className="w-full h-12 flex items-center justify-center">
             <p className="mr-2 text-sm cursor-pointer">Previous</p>
             <div className="w-7 h-7 rounded-lg bg-[#61088E] text-white flex items-center justify-center mr-2 text-sm cursor-pointer">
               1
@@ -54,7 +71,7 @@ const Cashiers = () => {
               3
             </div>
             <p className="text-sm cursor-pointer">Next</p>
-          </div>
+          </div> */}
         </div>
       </section>
       {modal ? <Modal setModal={setModal} modal={modal} /> : ""}

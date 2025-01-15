@@ -29,20 +29,23 @@ const Admin = () => {
           <Card
             name="Today's sales"
             type="price"
+            suffix="so far"
             value={dashboard.daily?.totalSales ?? 0}
             sub="3.5%"
           />
 
           <Card
-            name="Today's total transactions"
+            name="Today's transactions"
             type="amount"
+            suffix="transactions so far"
             value={dashboard.daily?.transactionCount ?? 0}
             sub="3.5%"
           />
 
           <Card
             name="Monthly sales"
-            type="amount"
+            type="price"
+            suffix="this month"
             value={dashboard.monthly?.totalSales ?? 0}
             sub="3.5%"
           />
@@ -50,7 +53,8 @@ const Admin = () => {
           <Card
             name="Monthly Transactions"
             type="amount"
-            value={dashboard.monthly?.transactionCount}
+            suffix="transactions this month"
+            value={dashboard.monthly?.transactionCount ?? 0}
             sub="3.5%"
           />
         </div>

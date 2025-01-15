@@ -10,6 +10,45 @@ import ClearConfirm from "./clearConfirm";
 const Cart = () => {
   const { cart, voidModal } = useContext(CashierContext);
 
+  const date = new Date(cart.createdAt);
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const meridiem = hours >= 12 ? "pm" : "am";
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  const dayOfWeekNumber = date.getDay();
+  const dayOfWeek = daysOfWeek[dayOfWeekNumber];
+
+  const formattedDate = `${dayOfWeek}, ${day} ${months[month]}, ${year}`;
+  const formattedTime = `${(hours % 12 || 12)
+    .toString()
+    .padStart(2, "0")}:${minutes.toString().padStart(2, "0")} ${meridiem}`;
   return (
     <div>
       <div className="w-[70vw] mr-auto ml-auto relative">
@@ -26,8 +65,8 @@ const Cart = () => {
                 <p className="text-xs">Order ID: 947482789432</p>
               </div>
               <div>
-                <p className="text-xs">Wednesday, 21st May, 2024</p>
-                <p className="text-xs">3:54 pm</p>
+                <p className="text-xs">{formattedDate}</p>
+                <p className="text-xs">{formattedTime}</p>
               </div>
             </div>
 
@@ -35,12 +74,12 @@ const Cart = () => {
             <div className="mt-14 w-[60%]">
               <p className="w-full border-b border-b-black">Orders</p>
               <div className="w-full">
-                {cart?.data?.length ? (
-                  cart.data.map((item, index) => (
+                {cart?.orders?.length ? (
+                  cart.orders.map((item, index) => (
                     <Products
                       key={index}
                       id={item._id}
-                      name={item.name}
+                      name={item.product_name}
                       price={item.price}
                       quantity={item.quantity}
                     />
@@ -53,9 +92,9 @@ const Cart = () => {
           </div>
           <div>
             <Detail
-              status={cart.status}
-              method={cart.method}
-              total={cart?.data?.reduce((a, b) => a + b.price, 0)}
+              status={cart.paymentStatus}
+              method={cart.paymentMethod}
+              total={cart?.price}
             />
           </div>
         </section>

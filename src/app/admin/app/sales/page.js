@@ -8,12 +8,23 @@ import { useContext } from "react";
 import AdminContext from "@/app/context/adminContext";
 
 const Sales = () => {
-  const { sales } = useContext(AdminContext);
+  const {
+    sales,
+    salesSearch,
+    setSalesSearch,
+    handleSearchSale,
+    paymentMethodFilter,
+  } = useContext(AdminContext);
 
   return (
     <div className="px-16 pt-10">
       <section className="w-full">
-        <Sub />
+        <Sub
+          salesSearch={salesSearch}
+          setSalesSearch={setSalesSearch}
+          handleSearchSale={handleSearchSale}
+          paymentMethodFilter={paymentMethodFilter}
+        />
         <div className="w-full">
           <table className="w-full text-left text-sm">
             <thead className="h-10">
@@ -30,16 +41,16 @@ const Sales = () => {
                   <TableRow
                     key={item._id}
                     index={index}
-                    id={item.code}
-                    total={item.total}
+                    id={item.bill_code}
+                    total={item.total_price}
                     status={item.status}
-                    method={item.method}
+                    method={item.payment_method}
                   />
                 );
               })}
             </tbody>
           </table>
-          <div className="w-full h-12 flex items-center justify-center">
+          {/* <div className="w-full h-12 flex items-center justify-center">
             <p className="mr-2 text-sm cursor-pointer">Previous</p>
             <div className="w-7 h-7 rounded-lg bg-[#61088E] text-white flex items-center justify-center mr-2 text-sm cursor-pointer">
               1
@@ -51,7 +62,7 @@ const Sales = () => {
               3
             </div>
             <p className="text-sm cursor-pointer">Next</p>
-          </div>
+          </div> */}
         </div>
       </section>
     </div>

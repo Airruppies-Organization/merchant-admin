@@ -17,6 +17,7 @@ export const useCashierLogin = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ badge_id, password }),
       }
     );
@@ -29,11 +30,11 @@ export const useCashierLogin = () => {
     }
 
     if (response.ok) {
-      localStorage.setItem("cashier", JSON.stringify(result));
+      // localStorage.setItem("cashier", JSON.stringify(result));
       // alert(`${result}`);
-      dispatch({ type: "SIGNUP", payload: result });
+      // dispatch({ type: "SIGNUP", payload: result });
       setIsLoading(false);
-      return true;
+      return result.success;
     }
   };
 

@@ -13,7 +13,7 @@ const CodeInput = () => {
 
   const handleChange = (e, index) => {
     const value = e.target.value;
-    if (value.length > 1) return;
+    if (value.length > 5) return;
     // here we want only one value per entry field
 
     const newValues = [...values];
@@ -22,7 +22,7 @@ const CodeInput = () => {
     /* here we save a sample of the values state, change an index of the array
      and then update the values state */
 
-    if (value && index < 2) {
+    if (value && index < 6) {
       inputs.current[index + 1].focus();
       // here we keep changing focus to the next field until the entire fields has been filled
     }

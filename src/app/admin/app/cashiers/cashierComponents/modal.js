@@ -23,7 +23,7 @@ const Modal = ({ setModal, modal }) => {
   return (
     <div
       onClick={() => setModal(!modal)}
-      className="absolute top-0 left-0 w-screen h-screen bg-neutral-900 bg-opacity-30 flex items-center justify-center"
+      className="absolute top-0 left-0 w-screen h-screen bg-neutral-900 bg-opacity-30 flex items-center justify-center z-30"
     >
       <div
         onClick={(e) => e.stopPropagation()}

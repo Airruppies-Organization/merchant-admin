@@ -19,6 +19,7 @@ const Settings = () => {
     activePaymentTypes,
     setActivePaymentTypes,
     paymentTypesHandler,
+    deactivate,
   } = useContext(AdminContext);
 
   return (
@@ -282,8 +283,11 @@ const Settings = () => {
         <div>
           <p className="text-xl text-red-600 font-medium">Danger zone</p>
         </div>
-        <button className="mt-3 bg-red-300 px-4 py-2 rounded-md cursor-pointer text-red-800 transition-colors hover:bg-red-400">
-          Deactivate merchant
+        <button
+          onClick={deactivate}
+          className="mt-3 bg-red-300 px-4 py-2 rounded-md cursor-pointer text-red-800 transition-colors hover:bg-red-400"
+        >
+          Deactivate account
         </button>
       </section>
     </div>

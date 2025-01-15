@@ -17,7 +17,13 @@ const Signup = () => {
       <Header />
       <section className="w-[52vw] ml-auto mr-auto pt-8">
         <p className="text-3xl mb-8">Create Account</p>
-        <div className="flex flex-col">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            router.push("/admin/auth/password");
+          }}
+          className="flex flex-col"
+        >
           <Input
             label="First Name"
             type="text"
@@ -61,11 +67,11 @@ const Signup = () => {
                 onClick={() => router.push("/admin/auth/login")}
                 className="text-[#61088E] cursor-pointer"
               >
-                Signup here
+                Login here
               </p>
             </div>
           </div>
-        </div>
+        </form>
       </section>
     </div>
   );

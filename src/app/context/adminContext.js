@@ -1,9 +1,11 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAuthContext } from "../hooks/useAuthContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+
 import { useLogout } from "@/app/hooks/useLogout";
 
 export const AdminContext = createContext();
@@ -11,11 +13,12 @@ export const AdminContext = createContext();
 export const AdminProvider = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { admin } = useAuthContext();
+  // const { admin } = useAuthContext();
   const { logout } = useLogout();
+  const searchParams = useSearchParams();
 
-  // state
-
+  // STATE
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [modal, setModal] = useState(false); // modal form to add cashier
   const [deleteModal, setDeleteModal] = useState(false); // modal to delete cashier
   const [cashiers, setCashiers] = useState([]); // list of cashiers
@@ -26,6 +29,8 @@ export const AdminProvider = ({ children }) => {
   const [chartData, setChartData] = useState([]);
   const [chartFrame, setChartFrame] = useState("1Y");
   const [dashboard, setDashboard] = useState({});
+  const [cashierSearch, setCashierSearch] = useState("");
+  const [salesSearch, setSalesSearch] = useState("");
   const [adminField, setAdminField] = useState({
     firstName: "",
     lastName: "",
@@ -71,58 +76,90 @@ export const AdminProvider = ({ children }) => {
     transfer: true,
   });
 
-  // useEffects
+  // USE EFFECTS
   useEffect(() => {
-    const localAdmin = localStorage.getItem("admin");
-    if (
-      !localAdmin &&
-      !pathname.includes("auth") &&
-      pathname.includes("admin")
-    ) {
-      router.push("/admin/auth/login");
-    }
-    if (localAdmin && pathname.includes("auth") && pathname.includes("admin")) {
-      router.push("/admin/app");
-    }
-  }, []);
+    // Only proceed if the current path is within the admin platform
+    if (!pathname.startsWith("/admin")) return; // This is the main gateway for the admin platform
 
+    // Step 1: Check if the user is authenticated (verify token)
+    const checkAuthentication = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:7000/merchant/api/check-auth",
+          {
+            withCredentials: true,
+          }
+        );
+
+        if (res.data.success && res.data.hasMerch) {
+          if (!pathname.includes("/admin/app")) {
+            router.push("/admin/app");
+          }
+
+          setIsAuthenticated(true); // Token is valid
+        } else if (res.data.success && !res.data.hasMerch) {
+          if (!pathname.includes("/admin/onboard")) {
+            router.push("/admin/onboard");
+          }
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        router.push("/admin/auth/login");
+      }
+    };
+
+    checkAuthentication();
+  }, [router]);
+
+  // get cashiers
   useEffect(() => {
-    if (!admin) return;
-
+    if (!isAuthenticated) return;
     const getCashiers = async () => {
       const res = await axios.get(
-        "http://localhost:7000/merchant/api/getCashiers",
+        `http://localhost:7000/merchant/api/getCashiers?${searchParams.toString()}`,
         {
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${admin?.token}`,
+            // authorization: `Bearer ${admin?.token}`,
           },
+          withCredentials: true,
         }
       );
       setCashiers(res.data);
     };
+
     getCashiers();
-  }, [admin]);
+  }, [searchParams, isAuthenticated]);
 
+  // sales data
   useEffect(() => {
+    if (!isAuthenticated) return;
     const saleFetcher = async () => {
-      const req = await axios.get(
-        "http://localhost:7000/merchant/api/salesData",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${admin?.token}`,
-          },
-        }
-      );
-
-      setSales(req.data);
+      try {
+        const req = await axios.get(
+          `http://localhost:7000/merchant/api/salesData?${searchParams.toString()}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              // authorization: `Bearer ${admin.token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        setSales(req.data || []);
+      } catch (error) {
+        console.error("Error fetching sales data:", error);
+      }
     };
 
-    admin && saleFetcher();
-  }, [admin]);
+    saleFetcher();
+  }, [isAuthenticated]);
 
+  // all time sales
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchData = async () => {
       try {
         const response = await fetch(
@@ -130,8 +167,9 @@ export const AdminProvider = ({ children }) => {
           {
             headers: {
               "Content-Type": "application/json",
-              authorization: `Bearer ${admin?.token}`,
+              // authorization: `Bearer ${admin?.token}`,
             },
+            credentials: "include",
           }
         );
         const result = await response.json();
@@ -165,7 +203,7 @@ export const AdminProvider = ({ children }) => {
           }
         };
 
-        const formattedData = result.sales.map((entry) => ({
+        const formattedData = result.sales?.map((entry) => ({
           // Create a readable date label
 
           label: chartRule(entry, chartFrame),
@@ -174,58 +212,66 @@ export const AdminProvider = ({ children }) => {
           sales: entry.sales,
         }));
 
-        setChartData(formattedData);
+        setChartData(formattedData || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
+    fetchData();
+  }, [setChartData, chartFrame, isAuthenticated]);
 
-    admin && fetchData();
-  }, [setChartData, chartFrame, admin]);
-
+  // payment types
   useEffect(() => {
-    if (!admin) return;
+    if (!isAuthenticated) return;
 
     const fetcher = async () => {
-      const req = await fetch(
-        "http://localhost:7000/merchant/api/paymentTypes",
+      try {
+        const req = await fetch(
+          "http://localhost:7000/merchant/api/paymentTypes",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              // authorization: `Bearer ${admin?.token}`,
+            },
+            credentials: "include",
+          }
+        );
+
+        const result = await req.json();
+
+        setPaymentTypes(result.paymentTypes);
+        setActivePaymentTypes(() =>
+          result.merchantPaymentTypes?.map((item) => item._id)
+        );
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetcher();
+  }, [isAuthenticated]);
+
+  // dashboard
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const dashboard = async () => {
+      const req = await axios.get(
+        "http://localhost:7000/merchant/api/sales-summary",
         {
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${admin?.token}`,
+            // authorization: `Bearer ${admin?.token}`,
           },
+          withCredentials: true,
         }
       );
 
-      const result = await req.json();
-
-      setPaymentTypes(result.paymentTypes);
-      setActivePaymentTypes(() =>
-        result.merchantPaymentTypes?.map((item) => item._id)
-      );
+      setDashboard(req.data);
     };
-    fetcher();
-  }, [admin]);
 
-  // useEffect(() => {
-  //   if (!admin?.hasMerch) return;
-
-  //   const dashboard = async () => {
-  //     const req = await axios.get(
-  //       "http://localhost:7000/merchant/api/sales-summary",
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           authorization: `Bearer ${admin?.token}`,
-  //         },
-  //       }
-  //     );
-
-  //     setDashboard(req.data);
-  //   };
-
-  //   dashboard();
-  // }, [admin]);
+    dashboard();
+  }, [isAuthenticated]);
 
   const deleteCashier = async (id) => {
     // await fetch(`http://localhost:5000/cashiers/${id}`, {
@@ -246,21 +292,25 @@ export const AdminProvider = ({ children }) => {
       phoneNumber,
       badge_id,
     };
-    console.log(email);
-    const result = await axios.post(
-      "http://localhost:7000/merchant/api/createCashier",
-      data,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${admin?.token}`,
-        },
-      }
-    );
+    try {
+      const result = await axios.post(
+        "http://localhost:7000/merchant/api/createCashier",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            // authorization: `Bearer ${admin?.token}`,
+          },
+          withCredentials: true,
+        }
+      );
 
-    setCashiers((prev) => [...prev, result.data]);
+      setCashiers((prev) => [...prev, result.data]);
 
-    setModal(false);
+      setModal(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onboardHandler = async () => {
@@ -269,8 +319,9 @@ export const AdminProvider = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: `Bearer ${admin?.token}`,
+          // authorization: `Bearer ${admin?.token}`,
         },
+        credentials: "include",
         body: JSON.stringify(onboardField),
       });
 
@@ -280,10 +331,10 @@ export const AdminProvider = ({ children }) => {
 
       const result = await res.json();
       console.log("Onboarding successful:", result);
-      localStorage.setItem(
-        "admin",
-        JSON.stringify({ ...admin, hasMerch: true })
-      );
+      // localStorage.setItem(
+      //   "admin",
+      //   JSON.stringify({ ...admin, hasMerch: true })
+      // );
       router.push("/admin/app");
     } catch (error) {
       console.error("Error onboarding merchant:", error);
@@ -294,8 +345,9 @@ export const AdminProvider = ({ children }) => {
     const res = await axios.get("http://localhost:7000/merchant/api/getHash", {
       headers: {
         "Content-Type": "application/json",
-        authorization: `Bearer ${admin.token}`,
+        // authorization: `Bearer ${admin.token}`,
       },
+      withCredentials: true,
     });
 
     if (res.status === 200) {
@@ -308,9 +360,11 @@ export const AdminProvider = ({ children }) => {
     console.log(linkModal);
   };
 
-  const logoutHandler = () => {
-    const success = logout();
+  const logoutHandler = async () => {
+    const success = await logout();
+    console.log(success);
     if (success) {
+      alert(success);
       router.push("/admin/auth/login");
     }
   };
@@ -320,8 +374,10 @@ export const AdminProvider = ({ children }) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        authorization: `Bearer ${admin.token}`,
+        // authorization: `Bearer ${admin.token}`,
       },
+      credentials: "include",
+
       body: JSON.stringify({ urlField, schemaDef }),
     });
 
@@ -329,16 +385,82 @@ export const AdminProvider = ({ children }) => {
   };
 
   const paymentTypesHandler = async () => {
-    const res = await fetch("http://localhost:7000/merchant/api/paymentTypes", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${admin.token}`,
-      },
-      body: JSON.stringify({ paymentTypes: activePaymentTypes }),
-    });
+    try {
+      const res = await fetch(
+        "http://localhost:7000/merchant/api/paymentTypes",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            // authorization: `Bearer ${admin.token}`,
+          },
+          credentials: "include",
 
-    await res.json();
+          body: JSON.stringify({ paymentTypes: activePaymentTypes }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Failed to update payment types: ${res.status}`);
+      }
+
+      if (res.ok) {
+        await res.json();
+        alert("Payment types updated successfully");
+      }
+    } catch (error) {
+      console.error("Error updating payment types:", error);
+    }
+  };
+
+  const handleSearchCashier = async (e) => {
+    e.preventDefault();
+    const setParams = new URLSearchParams(searchParams);
+    setParams.set("search", cashierSearch);
+    router.push(`/admin/app/cashiers?${setParams.toString()}`, undefined, {
+      shallow: true,
+    });
+  };
+
+  const handleSearchSale = async (e) => {
+    e.preventDefault();
+    const setParams = new URLSearchParams(searchParams);
+    setParams.set("search", salesSearch);
+    router.push(`/admin/app/sales?${setParams.toString()}`, undefined, {
+      shallow: true,
+    });
+  };
+  const handleActiveCashier = async (cashierStatus) => {
+    const setParams = new URLSearchParams(searchParams);
+    setParams.set("cashierStatus", cashierStatus);
+    router.push(`/admin/app/cashiers?${setParams.toString()}`, undefined, {
+      shallow: true,
+    });
+  };
+
+  const paymentMethodFilter = async (paymentMethod) => {
+    const setParams = new URLSearchParams(searchParams);
+    setParams.set("paymentMethod", paymentMethod);
+    router.push(`/admin/app/sales?${setParams.toString()}`, undefined, {
+      shallow: true,
+    });
+  };
+
+  // danger zone
+  const deactivate = async () => {
+    try {
+      const res = await fetch("http://localhost:7000/merchant/api/deactivate", {
+        credentials: "include",
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        router.push("/admin/auth/signup");
+      }
+    } catch (error) {
+      console.log("ERROR:", error.message);
+    }
   };
 
   return (
@@ -390,6 +512,16 @@ export const AdminProvider = ({ children }) => {
         activePaymentTypes,
         setActivePaymentTypes,
         paymentTypesHandler,
+        cashierSearch,
+        setCashierSearch,
+        handleSearchCashier,
+        handleActiveCashier,
+        salesSearch,
+        setSalesSearch,
+        handleSearchSale,
+        paymentMethodFilter,
+        deactivate,
+        setIsAuthenticated,
       }}
     >
       {children}

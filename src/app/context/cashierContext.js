@@ -6,13 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 export const CashierContext = createContext();
 
 export const CashierProvider = ({ children }) => {
-  const [cart, setCart] = useState({
-    data: [],
-    status: "",
-    method: "",
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [cart, setCart] = useState({});
   const [getErr, setGetErr] = useState("");
-  const [values, setValues] = useState(["", "", ""]);
+  const [values, setValues] = useState(["", "", "", "", "", "", ""]);
   const [voidModal, setVoidModal] = useState(false);
   const [loginField, setLoginField] = useState({
     badge_id: "",
@@ -23,41 +20,77 @@ export const CashierProvider = ({ children }) => {
   const pathname = usePathname();
   const { cashier } = useCashierAuthContext();
 
-  useEffect(() => {
-    const currSession = localStorage.getItem("currSession");
-    setCart(currSession ? JSON.parse(currSession) : []); // or any default value
-  }, []);
+  // useEffect(() => {
+  //   const currSession = localStorage.getItem("currSession");
+  //   setCart(currSession ? JSON.parse(currSession) : []); // or any default value
+  // }, []);
 
   useEffect(() => {
-    const localCashier = localStorage.getItem("cashier");
-    if (
-      !localCashier &&
-      !pathname.includes("auth") &&
-      pathname.includes("cashier") &&
-      !pathname.includes("admin") // to be reviewed
-    ) {
-      router.push("/cashier/auth/login");
-    }
-    if (
-      localCashier &&
-      pathname.includes("auth") &&
-      pathname.includes("cashier") &&
-      !pathname.includes("admin") // to be reviewed
-    ) {
-      router.push("/cashier/app/codeInput");
-    }
-  }, [cashier]);
+    // Only proceed if the current path is within the admin platform
+    if (!pathname.startsWith("/cashier")) return; // This is the main gateway for the admin platform
+
+    // Step 1: Check if the user is authenticated (verify token)
+    const checkAuthentication = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:7000/merchant/cashier/check-auth",
+          {
+            credentials: "include",
+          }
+        );
+
+        const result = await res.json();
+
+        console.log(result);
+
+        if (result.success && res.ok) {
+          if (!pathname.includes("/cashier/app")) {
+            router.push("/cashier/app/codeInput");
+          }
+
+          setIsAuthenticated(true); // Token is valid
+        }
+
+        if (!res.ok) {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        router.push("/cashier/auth/login");
+      }
+    };
+
+    checkAuthentication();
+  }, [router]);
+
+  // useEffect(() => {
+  //   const localCashier = localStorage.getItem("cashier");
+  //   if (
+  //     !localCashier &&
+  //     !pathname.includes("auth") &&
+  //     pathname.includes("cashier") &&
+  //     !pathname.includes("admin") // to be reviewed
+  //   ) {
+  //     router.push("/cashier/auth/login");
+  //   }
+  //   if (
+  //     localCashier &&
+  //     pathname.includes("auth") &&
+  //     pathname.includes("cashier") &&
+  //     !pathname.includes("admin") // to be reviewed
+  //   ) {
+  //     router.push("/cashier/app/codeInput");
+  //   }
+  // }, [cashier]);
 
   const cartItems = async () => {
     const code = values.join("");
 
     try {
       const response = await fetch(
-        `http://localhost:7000/merchant/cashier/sessionData?code=${code}`,
+        `http://localhost:7000/merchant/cashier/billData?code=${code}`,
         {
-          headers: {
-            authorization: `Bearer ${cashier.token}`,
-          },
+          credentials: "include",
         }
       );
 
@@ -66,27 +99,26 @@ export const CashierProvider = ({ children }) => {
         throw new Error(errorData.message);
       }
       const result = await response.json();
+      console.log(result);
+
       // Store session data in localStorage and update state
       localStorage.setItem("currSession", JSON.stringify(result));
       setCart(result); // Update the cart state with the fetched data
 
       // Reset the form values
-      setValues(["", "", ""]);
+      setValues(["", "", "", "", "", "", ""]);
 
       // Navigate to the cart page
       router.push("/cashier/app/cart");
     } catch (error) {
       console.error("Error fetching session data:", error.message);
       alert(error.message);
-      setValues(["", "", ""]);
+      setValues(["", "", "", "", "", "", ""]);
     }
   };
 
-  const clearItem = async (meth, vod) => {
+  const clearItem = async () => {
     try {
-      // Calculate the total price
-      const totalPrice = cart.data.reduce((prev, curr) => prev + curr.price, 0);
-
       // POST request to save sales data
       const postResponse = await fetch(
         "http://localhost:7000/merchant/cashier/salesData",
@@ -94,15 +126,16 @@ export const CashierProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${cashier.token}`,
+            // authorization: `Bearer ${cashier.token}`,
           },
           body: JSON.stringify({
-            code: cart.code,
-            data: [...cart.data],
-            status: !vod ? "Paid" : vod,
-            method: meth,
-            total: totalPrice,
+            bill_code: cart.bill_code,
+            data: cart.orders,
+            status: cart.paymentStatus,
+            payment_method: cart.paymentMethod,
+            total_price: cart.price,
           }),
+          credentials: "include",
         }
       );
 
@@ -116,14 +149,15 @@ export const CashierProvider = ({ children }) => {
 
       // DELETE request to clear session data
       const deleteResponse = await fetch(
-        `http://localhost:7000/merchant/cashier/sessionData?code=${encodeURIComponent(
-          cart.code
+        `http://localhost:7000/merchant/cashier/billData?code=${encodeURIComponent(
+          cart.bill_code
         )}`,
         {
           method: "DELETE",
           headers: {
             authorization: `Bearer ${cashier.token}`,
           },
+          credentials: "include",
         }
       );
 
@@ -137,7 +171,7 @@ export const CashierProvider = ({ children }) => {
         await deleteResponse.json();
 
         // Notify the user and reset the session
-        alert("Cart items cleared successfully");
+        // alert("Cart items cleared successfully");
         localStorage.removeItem("currSession");
         router.push("/cashier/app/codeInput");
       }

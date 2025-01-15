@@ -9,12 +9,19 @@ export const useLogout = () => {
 
   // const { setOrders, setCart } = useContext(DataContext);
 
-  const logout = () => {
-    localStorage.removeItem("admin");
+  const logout = async () => {
+    const res = await fetch("http://localhost:7000/merchant/api/signout");
 
-    dispatch({ type: "LOGOUT" });
+    const result = await res.json();
+    console.log(result);
 
-    return true;
+    if (res.ok) {
+      return result;
+    }
+
+    // dispatch({ type: "LOGOUT" });
+
+    return false;
     // setOrders([]);
     // setCart([]);
   };

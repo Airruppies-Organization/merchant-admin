@@ -17,6 +17,7 @@ export const useSignup = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           firstName,
           lastName,
@@ -29,16 +30,21 @@ export const useSignup = () => {
 
     const result = await response.json();
 
+    // if (!response.ok) {
+    //   setIsLoading(false);
+    //   setError(result.error);
+    //   return false;
+    // }
     if (!response.ok) {
       setIsLoading(false);
       setError(result.error);
     }
 
     if (response.ok) {
-      localStorage.setItem("admin", JSON.stringify(result));
-      dispatch({ type: "SIGNUP", payload: result });
+      // localStorage.setItem("admin", JSON.stringify(result));
+      // dispatch({ type: "SIGNUP", payload: result });
       setIsLoading(false);
-      return true;
+      return result;
     }
   };
 
