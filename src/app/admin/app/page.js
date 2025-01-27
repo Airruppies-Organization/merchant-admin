@@ -3,21 +3,22 @@
 import React from "react";
 import Header from "@/app/app_component/header";
 import Card from "@/app/app_component/card";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import AdminContext from "@/app/context/adminContext";
 import { RevenueChart } from "@/app/app_component/revenueChart";
 import LinkModal from "./linkModal";
 
 const Admin = () => {
-  const { dashboard, addAdmin, linkModal, setLinkModal, link, setLink } =
-    useContext(AdminContext);
+  const [linkModal, setLinkModal] = useState(false);
+
+  const { dashboard, addAdmin, link } = useContext(AdminContext);
 
   return (
     <div className="w-full bg-[#f6f6f6] pt-10">
       <div className="px-10">
         <div className="flex space-x-3">
           <div
-            onClick={addAdmin}
+            onClick={() => setLinkModal((prev) => !prev)}
             className="bg-purple-700 rounded-lg text-white px-4 py-1 w-max mb-3 cursor-pointer"
           >
             <p>Add Admin</p>
@@ -63,7 +64,7 @@ const Admin = () => {
         </div>
       </div>
       {/* To add to cart */}
-      {linkModal && <LinkModal link={link} />}
+      {linkModal && <LinkModal setLinkModal={setLinkModal} link={link} />}
     </div>
   );
 };

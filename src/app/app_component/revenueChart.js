@@ -42,11 +42,11 @@ export function RevenueChart() {
             <div className="h-8 w-8 rounded-full bg-[#61088E] mr-2"></div>
             <CardTitle>Sales Analytics</CardTitle>
           </div>
-          <p className="text-sm">Income</p>
+          {/* <p className="text-sm">Income</p>
           <div className="flex">
             <p>N</p>
             <p className="text-3xl">32,500</p>
-          </div>
+          </div> */}
         </div>
       </CardHeader>
 

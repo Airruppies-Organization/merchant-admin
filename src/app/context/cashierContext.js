@@ -117,67 +117,102 @@ export const CashierProvider = ({ children }) => {
     }
   };
 
+  // const clearItem = async () => {
+  //   try {
+  //     // POST request to save sales data
+  //     const postResponse = await fetch(
+  //       "http://localhost:7000/merchant/cashier/salesData",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           // authorization: `Bearer ${cashier.token}`,
+  //         },
+  //         body: JSON.stringify({
+  //           bill_code: cart.bill_code,
+  //           data: cart.orders,
+  //           status: cart.paymentStatus,
+  //           payment_method: cart.paymentMethod,
+  //           total_price: cart.price,
+  //         }),
+  //         credentials: "include",
+  //       }
+  //     );
+
+  //     // Handle POST response
+  //     if (!postResponse.ok) {
+  //       const error = await postResponse.json();
+  //       throw new Error(`Error saving sales data: ${error.message}`);
+  //     }
+
+  //     console.log("Sales data saved successfully:", await postResponse.json());
+
+  //     // DELETE request to clear session data
+  //     const deleteResponse = await fetch(
+  //       `http://localhost:7000/merchant/cashier/billData?code=${encodeURIComponent(
+  //         cart.bill_code
+  //       )}`,
+  //       {
+  //         method: "DELETE",
+  //         headers: {
+  //           authorization: `Bearer ${cashier.token}`,
+  //         },
+  //         credentials: "include",
+  //       }
+  //     );
+
+  //     // Handle DELETE response
+  //     if (!deleteResponse.ok) {
+  //       const error = await deleteResponse.json();
+  //       throw new Error(`Error clearing session data: ${error.message}`);
+  //     }
+
+  //     if (deleteResponse.ok) {
+  //       await deleteResponse.json();
+
+  //       // Notify the user and reset the session
+  //       // alert("Cart items cleared successfully");
+  //       localStorage.removeItem("currSession");
+  //       router.push("/cashier/app/codeInput");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error.message);
+  //     alert(`An error occurred: ${error.message}`);
+  //   }
+  // };
+
   const clearItem = async () => {
     try {
-      // POST request to save sales data
-      const postResponse = await fetch(
-        "http://localhost:7000/merchant/cashier/salesData",
+      const res = await fetch(
+        "http://localhost:7000/merchant/cashier/clearOrder",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // authorization: `Bearer ${cashier.token}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             bill_code: cart.bill_code,
             data: cart.orders,
             status: cart.paymentStatus,
             payment_method: cart.paymentMethod,
             total_price: cart.price,
+            user_id: cart.user_id,
           }),
-          credentials: "include",
         }
       );
 
-      // Handle POST response
-      if (!postResponse.ok) {
-        const error = await postResponse.json();
-        throw new Error(`Error saving sales data: ${error.message}`);
-      }
+      const result = await res.json();
+      console.log("CLEARED ITEM:", result);
 
-      console.log("Sales data saved successfully:", await postResponse.json());
-
-      // DELETE request to clear session data
-      const deleteResponse = await fetch(
-        `http://localhost:7000/merchant/cashier/billData?code=${encodeURIComponent(
-          cart.bill_code
-        )}`,
-        {
-          method: "DELETE",
-          headers: {
-            authorization: `Bearer ${cashier.token}`,
-          },
-          credentials: "include",
-        }
-      );
-
-      // Handle DELETE response
-      if (!deleteResponse.ok) {
-        const error = await deleteResponse.json();
-        throw new Error(`Error clearing session data: ${error.message}`);
-      }
-
-      if (deleteResponse.ok) {
-        await deleteResponse.json();
-
-        // Notify the user and reset the session
-        // alert("Cart items cleared successfully");
-        localStorage.removeItem("currSession");
+      if (res.ok) {
+        alert(result.message);
         router.push("/cashier/app/codeInput");
+      } else {
+        console.log(result.error);
       }
     } catch (error) {
-      console.error("Error:", error.message);
-      alert(`An error occurred: ${error.message}`);
+      console.log(error.message);
     }
   };
 

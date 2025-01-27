@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 // import { Delete } from "../../../../../public/icon";
 import AdminContext from "@/app/context/adminContext";
 
-const TableRow = ({ id, name, contact, status, index }) => {
+const TableRow = ({ id, badge_id, name, contact, status, index }) => {
   const { setDeleteModal, deleteModal, setCurr } = useContext(AdminContext);
 
   const handleDelete = () => {
@@ -17,7 +17,7 @@ const TableRow = ({ id, name, contact, status, index }) => {
         index % 2 === 0 ? "bg-[#F7F6FE]" : ""
       }`}
     >
-      <td className="pl-4">#{id}</td>
+      <td className="pl-4">#{badge_id}</td>
       <td>{name}</td>
       <td>{contact}</td>
       <td>

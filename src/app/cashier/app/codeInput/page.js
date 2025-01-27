@@ -13,7 +13,7 @@ const Cashier = () => {
   return (
     <div className="w-[70vw] mr-auto ml-auto relative">
       <Header name="Samuel T. Kayode" role="Cashier" />
-      <Sub />
+      {/* <Sub /> */}
 
       <div className="w-full h-screen absolute flex flex-col items-center justify-center top-0 z-[-1]">
         <p className="text-2xl">Enter New Code</p>

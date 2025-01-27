@@ -48,10 +48,11 @@ const Cashiers = () => {
                   <TableRow
                     key={index}
                     index={index}
-                    id={item.badge_id}
+                    badge_id={item.badge_id}
+                    id={item._id}
                     name={item.fullName}
                     contact={item.phoneNumber}
-                    status={item.status}
+                    status={item.logged_in}
                   />
                 );
               })}

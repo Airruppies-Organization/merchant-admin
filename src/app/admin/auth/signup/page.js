@@ -1,15 +1,26 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Input from "@/app/components/input";
 import Header from "@/app/components/header";
 import Link from "next/link";
 import AdminContext from "@/app/context/adminContext";
 import { useContext } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Signup = () => {
   const { adminField, setAdminField } = useContext(AdminContext);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("invite")) {
+      setAdminField((prev) => ({
+        ...prev,
+        merchant_id: searchParams.get("invite"),
+      }));
+    }
+  }, []);
+
   const router = useRouter();
 
   return (

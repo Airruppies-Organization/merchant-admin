@@ -19,10 +19,10 @@ export const AdminProvider = ({ children }) => {
 
   // STATE
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [profile, setProfile] = useState();
   const [modal, setModal] = useState(false); // modal form to add cashier
   const [deleteModal, setDeleteModal] = useState(false); // modal to delete cashier
   const [cashiers, setCashiers] = useState([]); // list of cashiers
-  const [linkModal, setLinkModal] = useState(false);
   const [link, setLink] = useState("");
   const [curr, setCurr] = useState(null); // current cashier to delete
   const [sales, setSales] = useState([]);
@@ -91,6 +91,7 @@ export const AdminProvider = ({ children }) => {
           }
         );
 
+        // if we have a user, and he has a merchant_id
         if (res.data.success && res.data.hasMerch) {
           if (!pathname.includes("/admin/app")) {
             router.push("/admin/app");
@@ -105,12 +106,42 @@ export const AdminProvider = ({ children }) => {
         }
       } catch (error) {
         setIsAuthenticated(false);
-        router.push("/admin/auth/login");
+        if (!pathname.includes("/admin/auth")) {
+          router.push("/admin/auth/login");
+        }
       }
     };
 
     checkAuthentication();
   }, [router]);
+
+  // Profile
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const profileFetcher = async () => {
+      try {
+        const req = await axios.get(
+          `http://localhost:7000/merchant/api/profile`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              // authorization: `Bearer ${admin.token}`,
+            },
+            withCredentials: true,
+          }
+        );
+
+        if (req.status === 200) {
+          setProfile(req.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales data:", error);
+      }
+    };
+
+    profileFetcher();
+  }, [isAuthenticated]);
 
   // get cashiers
   useEffect(() => {
@@ -238,6 +269,7 @@ export const AdminProvider = ({ children }) => {
         );
 
         const result = await req.json();
+        console.log(result);
 
         setPaymentTypes(result.paymentTypes);
         setActivePaymentTypes(() =>
@@ -274,13 +306,17 @@ export const AdminProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const deleteCashier = async (id) => {
-    // await fetch(`http://localhost:5000/cashiers/${id}`, {
-    //   method: "DELETE",
-    // });
+    const res = await fetch(
+      `http://localhost:7000/merchant/api/removeCashier/${id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    );
 
-    // axios.delete(`http://localhost:5000/cashiers/${id}`);
+    const result = await res.json();
 
-    const update = cashiers.filter((item) => item.id !== id);
+    const update = cashiers.filter((item) => item._id !== id);
     setCashiers(update);
     setDeleteModal(false);
   };
@@ -341,24 +377,24 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
-  const addAdmin = async () => {
-    const res = await axios.get("http://localhost:7000/merchant/api/getHash", {
-      headers: {
-        "Content-Type": "application/json",
-        // authorization: `Bearer ${admin.token}`,
-      },
-      withCredentials: true,
-    });
+  // const addAdmin = async () => {
+  //   const res = await axios.get("http://localhost:7000/merchant/api/getHash", {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       // authorization: `Bearer ${admin.token}`,
+  //     },
+  //     withCredentials: true,
+  //   });
 
-    if (res.status === 200) {
-      setLinkModal(true);
-      setLink(
-        `http://localhost:3000/admin/auth/signup?merch_id=${res.data.merch_id}`
-      );
-    }
+  //   if (res.status === 200) {
+  //     setLinkModal(true);
+  //     setLink(
+  //       `http://localhost:3000/admin/auth/signup?merch_id=${res.data.merch_id}`
+  //     );
+  //   }
 
-    console.log(linkModal);
-  };
+  //   console.log(linkModal);
+  // };
 
   const logoutHandler = async () => {
     const success = await logout();
@@ -494,9 +530,7 @@ export const AdminProvider = ({ children }) => {
         setLoginField,
         dashboard,
         setDashboard,
-        addAdmin,
-        linkModal,
-        setLinkModal,
+        // addAdmin,
         link,
         setLink,
         logoutHandler,
@@ -522,6 +556,7 @@ export const AdminProvider = ({ children }) => {
         paymentMethodFilter,
         deactivate,
         setIsAuthenticated,
+        profile,
       }}
     >
       {children}

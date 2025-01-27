@@ -40,13 +40,13 @@ const SideNav = () => {
             <p>Cashiers</p>
           </Link>
 
-          <Link
+          {/* <Link
             className="flex space-x-2 items-center hover:bg-purple-100 flex-grow rounded-md px-3 py-3 transition-all duration-200"
             href="/admin/app/notifications"
           >
             <Notifications className="fill-neutral-600 w-5 h-full" />
             <p>Notifications</p>
-          </Link>
+          </Link> */}
         </div>
 
         <div className="w-full flex flex-col">
