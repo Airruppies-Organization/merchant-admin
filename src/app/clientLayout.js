@@ -7,8 +7,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "../themes/theme";
 import SideNav from "./app_component/sideNav";
 import Header from "./app_component/header";
-import { useContext } from "react";
-import AdminContext from "./context/adminContext";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();

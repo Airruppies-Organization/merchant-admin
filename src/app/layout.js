@@ -4,9 +4,7 @@ import theme from "../themes/theme";
 import "../styles/globals.css";
 import ClientLayout from "./clientLayout";
 import { AdminProvider } from "./context/adminContext";
-import { CashierProvider } from "./context/cashierContext";
 import { AdminRegContext } from "./context/adminRegContext";
-import { CashierRegContext } from "./context/cashierRegContext";
 
 export const metadata = {
   title: "Airupees",
@@ -20,11 +18,7 @@ function Layout({ children }) {
         <body>
           <AdminRegContext>
             <AdminProvider>
-              <CashierRegContext>
-                <CashierProvider>
-                  <ClientLayout>{children}</ClientLayout>
-                </CashierProvider>
-              </CashierRegContext>
+              <ClientLayout>{children}</ClientLayout>
             </AdminProvider>
           </AdminRegContext>
         </body>
