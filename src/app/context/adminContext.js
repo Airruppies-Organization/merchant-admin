@@ -85,11 +85,13 @@ export const AdminProvider = ({ children }) => {
     const checkAuthentication = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:7000/merchant/api/check-auth",
+          `https://airruppies-backend-qatl.onrender.com/merchant/api/check-auth`,
           {
             withCredentials: true,
           }
         );
+
+        console.log(res.data);
 
         // if we have a user, and he has a merchant_id
         if (res.data.success && res.data.hasMerch) {
@@ -122,7 +124,7 @@ export const AdminProvider = ({ children }) => {
     const profileFetcher = async () => {
       try {
         const req = await axios.get(
-          `http://localhost:7000/merchant/api/profile`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/profile`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -148,7 +150,9 @@ export const AdminProvider = ({ children }) => {
     if (!isAuthenticated) return;
     const getCashiers = async () => {
       const res = await axios.get(
-        `http://localhost:7000/merchant/api/getCashiers?${searchParams.toString()}`,
+        `${
+          process.env.NEXT_PUBLIC_BASE_URL
+        }/merchant/api/getCashiers?${searchParams.toString()}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -169,7 +173,9 @@ export const AdminProvider = ({ children }) => {
     const saleFetcher = async () => {
       try {
         const req = await axios.get(
-          `http://localhost:7000/merchant/api/salesData?${searchParams.toString()}`,
+          `${
+            process.env.NEXT_PUBLIC_BASE_URL
+          }/merchant/api/salesData?${searchParams.toString()}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -194,7 +200,7 @@ export const AdminProvider = ({ children }) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:7000/merchant/api/allTimeSales?range=${chartFrame}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/allTimeSales?range=${chartFrame}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -258,7 +264,7 @@ export const AdminProvider = ({ children }) => {
     const fetcher = async () => {
       try {
         const req = await fetch(
-          "http://localhost:7000/merchant/api/paymentTypes",
+          `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/paymentTypes`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -289,7 +295,7 @@ export const AdminProvider = ({ children }) => {
 
     const dashboard = async () => {
       const req = await axios.get(
-        "http://localhost:7000/merchant/api/sales-summary",
+        `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/sales-summary`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -307,7 +313,7 @@ export const AdminProvider = ({ children }) => {
 
   const deleteCashier = async (id) => {
     const res = await fetch(
-      `http://localhost:7000/merchant/api/removeCashier/${id}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/removeCashier/${id}`,
       {
         method: "DELETE",
         credentials: "include",
@@ -330,7 +336,7 @@ export const AdminProvider = ({ children }) => {
     };
     try {
       const result = await axios.post(
-        "http://localhost:7000/merchant/api/createCashier",
+        `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/createCashier`,
         data,
         {
           headers: {
@@ -351,15 +357,18 @@ export const AdminProvider = ({ children }) => {
 
   const onboardHandler = async () => {
     try {
-      const res = await fetch("http://localhost:7000/merchant/api/onboard", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // authorization: `Bearer ${admin?.token}`,
-        },
-        credentials: "include",
-        body: JSON.stringify(onboardField),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/onboard`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // authorization: `Bearer ${admin?.token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify(onboardField),
+        }
+      );
 
       if (!res.ok) {
         throw new Error(`Failed to onboard: ${res.status} ${res.statusText}`);
@@ -378,7 +387,7 @@ export const AdminProvider = ({ children }) => {
   };
 
   // const addAdmin = async () => {
-  //   const res = await axios.get("http://localhost:7000/merchant/api/getHash", {
+  //   const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/getHash`, {
   //     headers: {
   //       "Content-Type": "application/json",
   //       // authorization: `Bearer ${admin.token}`,
@@ -406,16 +415,19 @@ export const AdminProvider = ({ children }) => {
   };
 
   const settingsHandler = async () => {
-    const res = await fetch("http://localhost:7000/merchant/api/configureApi", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        // authorization: `Bearer ${admin.token}`,
-      },
-      credentials: "include",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/configureApi`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          // authorization: `Bearer ${admin.token}`,
+        },
+        credentials: "include",
 
-      body: JSON.stringify({ urlField, schemaDef }),
-    });
+        body: JSON.stringify({ urlField, schemaDef }),
+      }
+    );
 
     const response = await res.json();
   };
@@ -423,7 +435,7 @@ export const AdminProvider = ({ children }) => {
   const paymentTypesHandler = async () => {
     try {
       const res = await fetch(
-        "http://localhost:7000/merchant/api/paymentTypes",
+        `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/paymentTypes`,
         {
           method: "PUT",
           headers: {
@@ -485,9 +497,12 @@ export const AdminProvider = ({ children }) => {
   // danger zone
   const deactivate = async () => {
     try {
-      const res = await fetch("http://localhost:7000/merchant/api/deactivate", {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/deactivate`,
+        {
+          credentials: "include",
+        }
+      );
 
       const result = await res.json();
 

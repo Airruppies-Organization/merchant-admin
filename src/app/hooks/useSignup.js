@@ -11,7 +11,7 @@ export const useSignup = () => {
     setError(null);
 
     const response = await fetch(
-      "http://localhost:7000/merchant/admin/auth/createAdmin",
+      `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/admin/auth/createAdmin`,
       {
         method: "POST",
         headers: {

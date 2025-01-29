@@ -10,7 +10,9 @@ export const useLogout = () => {
   // const { setOrders, setCart } = useContext(DataContext);
 
   const logout = async () => {
-    const res = await fetch("http://localhost:7000/merchant/api/signout");
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/signout`
+    );
 
     const result = await res.json();
     console.log(result);

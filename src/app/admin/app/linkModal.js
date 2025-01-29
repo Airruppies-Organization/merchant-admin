@@ -8,7 +8,7 @@ const LinkModal = ({ setLinkModal }) => {
 
   const inviteAdmin = async () => {
     const res = await fetch(
-      "http://localhost:7000/merchant/api/inviteNewAdmin",
+      `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/api/inviteNewAdmin`,
       {
         method: "POST",
         headers: {

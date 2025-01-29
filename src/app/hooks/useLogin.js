@@ -12,7 +12,7 @@ export const useLogin = () => {
     setError(null);
 
     const response = await fetch(
-      "http://localhost:7000/merchant/admin/auth/login",
+      `${process.env.NEXT_PUBLIC_BASE_URL}/merchant/admin/auth/login`,
       {
         method: "POST",
         headers: {
