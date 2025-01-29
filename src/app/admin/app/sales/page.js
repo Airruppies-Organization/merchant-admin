@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useContext } from "react";
 import Header from "@/app/app_component/header";
 import TableRow from "./salesComponent/tableRow";
 import Sub from "./sub";
-import { useContext } from "react";
 import AdminContext from "@/app/context/adminContext";
 
 const Sales = () => {
@@ -19,12 +18,15 @@ const Sales = () => {
   return (
     <div className="px-16 pt-10">
       <section className="w-full">
-        <Sub
-          salesSearch={salesSearch}
-          setSalesSearch={setSalesSearch}
-          handleSearchSale={handleSearchSale}
-          paymentMethodFilter={paymentMethodFilter}
-        />
+        <Suspense fallback={<p>Loading filters...</p>}>
+          <Sub
+            salesSearch={salesSearch}
+            setSalesSearch={setSalesSearch}
+            handleSearchSale={handleSearchSale}
+            paymentMethodFilter={paymentMethodFilter}
+          />
+        </Suspense>
+
         <div className="w-full">
           <table className="w-full text-left text-sm">
             <thead className="h-10">
@@ -36,8 +38,8 @@ const Sales = () => {
               </tr>
             </thead>
             <tbody>
-              {sales?.map((item, index) => {
-                return (
+              <Suspense fallback={<p>Loading sales data...</p>}>
+                {sales?.map((item, index) => (
                   <TableRow
                     key={item._id}
                     index={index}
@@ -46,23 +48,10 @@ const Sales = () => {
                     status={item.status}
                     method={item.payment_method}
                   />
-                );
-              })}
+                ))}
+              </Suspense>
             </tbody>
           </table>
-          {/* <div className="w-full h-12 flex items-center justify-center">
-            <p className="mr-2 text-sm cursor-pointer">Previous</p>
-            <div className="w-7 h-7 rounded-lg bg-[#61088E] text-white flex items-center justify-center mr-2 text-sm cursor-pointer">
-              1
-            </div>
-            <div className="w-7 h-7 rounded-lg bg-[#E0E0E0] text-black flex items-center justify-center mr-2 text-sm cursor-pointer">
-              2
-            </div>
-            <div className="w-7 h-7 rounded-lg bg-[#E0E0E0] text-black flex items-center justify-center mr-2 text-sm cursor-pointer">
-              3
-            </div>
-            <p className="text-sm cursor-pointer">Next</p>
-          </div> */}
         </div>
       </section>
     </div>

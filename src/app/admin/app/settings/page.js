@@ -2,6 +2,7 @@
 
 import CustomToggle from "@/app/components/toggle";
 import React from "react";
+import { Suspense } from "react";
 import { useState, useContext } from "react";
 import AdminContext from "@/app/context/adminContext";
 
@@ -219,39 +220,40 @@ const Settings = () => {
           </button>
         </div>
 
-        <table className="w-[60%] px-5 mt-5 text-sm">
-          <tbody>
-            {paymentTypes?.map((paymentType, index) => {
-              const toggleHandler = () => {
-                if (activePaymentTypes.includes(paymentType._id)) {
-                  setActivePaymentTypes((prev) =>
-                    prev.filter((id) => id !== paymentType._id)
-                  );
-                } else {
-                  setActivePaymentTypes((prev) => [...prev, paymentType._id]);
-                }
-              };
+        <Suspense fallback={<p>...Loading</p>}>
+          <table className="w-[60%] px-5 mt-5 text-sm">
+            <tbody>
+              {paymentTypes?.map((paymentType, index) => {
+                const toggleHandler = () => {
+                  if (activePaymentTypes.includes(paymentType._id)) {
+                    setActivePaymentTypes((prev) =>
+                      prev.filter((id) => id !== paymentType._id)
+                    );
+                  } else {
+                    setActivePaymentTypes((prev) => [...prev, paymentType._id]);
+                  }
+                };
 
-              return (
-                <tr
-                  key={index}
-                  className="h-12 text-neutral-600 font-semibold space-x-2"
-                >
-                  <td className="w-[40%]">{paymentType.paymentType}</td>
-                  <td>
-                    <CustomToggle
-                      // initialState={paySetting.cash}
-                      initialState={activePaymentTypes.includes(
-                        paymentType._id
-                      )}
-                      onToggle={toggleHandler}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr
+                    key={index}
+                    className="h-12 text-neutral-600 font-semibold space-x-2"
+                  >
+                    <td className="w-[40%]">{paymentType.paymentType}</td>
+                    <td>
+                      <CustomToggle
+                        // initialState={paySetting.cash}
+                        initialState={activePaymentTypes.includes(
+                          paymentType._id
+                        )}
+                        onToggle={toggleHandler}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
 
-            {/* <tr className="h-12 text-neutral-600 font-semibold">
+              {/* <tr className="h-12 text-neutral-600 font-semibold">
               <td>Card</td>
               <td>
                 <CustomToggle
@@ -276,8 +278,9 @@ const Settings = () => {
                 />
               </td>
             </tr> */}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </Suspense>
       </section>
       <section className="py-3 px-5 border-b border-b-neutral-300">
         <div>
