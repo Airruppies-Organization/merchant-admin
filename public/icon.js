@@ -7,7 +7,7 @@ export { default as Notifications } from "./notifications.svg";
 export { default as Setting } from "./settings.svg";
 export { default as Delete } from "./delete.svg";
 export { default as Filter } from "./filter.svg";
-export { default as Add } from "./add.svg";
+export { default as Add } from "./Add.svg";
 export { default as Search } from "./search.svg";
 export { default as Cancel } from "./cancel.svg";
 export { default as Angle } from "./angle.svg";
